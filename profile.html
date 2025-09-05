@@ -1,0 +1,167 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile - PisaKart</title>
+<style>
+  body { font-family: 'Poppins', sans-serif; background: #f9f9f9; margin:0; padding:20px; }
+  .container { max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  h2 { color:#2e7d32; text-align:center; }
+  .field { margin-bottom:10px; }
+  .label { font-weight:bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>My Profile</h2>
+  <div id="profile">Loading...</div>
+</div>
+
+<script>
+const token = localStorage.getItem("access_token");
+if(!token) {
+  alert("Please login first!");
+  window.location.href = "login.html"; // change to your login page
+}
+
+fetch("http://localhost:8000/api/my_profile", {
+  headers: {
+    "Authorization": "Bearer " + token
+  }
+})
+.then(res => {
+  if(res.status === 401) {
+    alert("Session expired or invalid token. Please login again.");
+    localStorage.removeItem("access_token");
+    location.href = "login.html";
+  }
+  return res.json();
+})
+.then(data => {
+  if(data.success) {
+    const user = data.user;
+    document.getElementById("profile").innerHTML = `
+      <div class="field"><span class="label">Name:</span> ${user.name}</div>
+      <div class="field"><span class="label">Email:</span> ${user.email}</div>
+      <div class="field"><span class="label">Phone:</span> ${user.phonenumber || "Not saved yet"}</div>
+      <div class="field"><span class="label">Address:</span> 
+        ${(user.street || '')} ${(user.village || '')} ${(user.city || '')}, ${(user.state || '')} ${(user.pincode || '')}
+      </div>
+    `;
+  } else {
+    document.getElementById("profile").innerHTML = "<p style='color:red;'>Unable to load profile.</p>";
+  }
+})
+.catch(err => {
+  console.error(err);
+  document.getElementById("profile").innerHTML = "<p style='color:red;'>Error loading profile.</p>";
+});
+</script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Profile - PisaKart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 20px;
+  }
+  .container {
+    max-width: 400px;
+    background: #fff;
+    margin: auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  h2 {
+    color: #2e7d32;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  button {
+    background: #2e7d32;
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #1b5e20;
+  }
+  #message {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>My Address</h2>
+  <input id="street" placeholder="Street">
+  <input id="city" placeholder="City">
+  <input id="state" placeholder="State">
+  <input id="pincode" placeholder="Pincode">
+  <button onclick="saveAddress()">Save Address</button>
+  <div id="message"></div>
+</div>
+
+<script>
+async function saveAddress(){
+  const token = localStorage.getItem("token");
+  if(!token) {
+    alert("Please login first");
+    return;
+  }
+  const addr = {
+    street: street.value.trim(),
+    city: city.value.trim(),
+    state: state.value.trim(),
+    pincode: pincode.value.trim()
+  };
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/update_address", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body: JSON.stringify(addr)
+    });
+    const data = await res.json();
+    document.getElementById("message").innerHTML = res.ok
+      ? "<span style='color:green;'>Address saved successfully!</span>"
+      : "<span style='color:red;'>" + (data.detail || "Error") + "</span>";
+  } catch(e) {
+    document.getElementById("message").innerHTML = "<span style='color:red;'>Network error</span>";
+  }
+}
+</script>
+</body>
+</html>

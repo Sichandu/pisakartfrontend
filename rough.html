@@ -1,0 +1,4824 @@
+<!--myorders.html-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Order Summary - PISA</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
+        .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .progress { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+        .progress div { flex: 1; text-align: center; }
+        .progress div:before { content: ""; display: block; width: 20px; height: 20px; border: 2px solid #007bff; border-radius: 50%; margin: 0 auto; background: white; }
+        .progress .active:before { background: #007bff; }
+        .items img { width: 80px; height: 80px; border-radius: 8px; margin-right: 10px; object-fit: cover; }
+        .items { display: flex; overflow-x: auto; }
+        .btn { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        .btn.grey { background: grey; }
+        .section-title { font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="section-title">Delivered by <span id="deliveryDate"></span></div>
+        <div class="items" id="itemsContainer"></div>
+
+        <div class="progress">
+            <div class="active">Ordered</div>
+            <div>Shipped</div>
+            <div>Out for delivery</div>
+            <div>Delivered</div>
+        </div>
+        <button class="btn grey" id="cancelBtn">Cancel Order</button>
+    </div>
+
+    <div class="card">
+        <div class="section-title">Shipping Address</div>
+        <div id="addressContainer"></div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">Order Info</div>
+        <div id="orderInfo"></div>
+    </div>
+
+    <div class="card">
+        <button class="btn" onclick="window.location.href='order-history.html'">View Order History</button>
+    </div>
+
+<script>
+    const pisaCode = prompt("Enter your Pisa Code:");
+    let orderId = "";
+
+    fetch(`http://127.0.0.1:8000/latest-order/${pisaCode}`)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("deliveryDate").innerText = data.delivery_date;
+        orderId = data.order_id;
+
+        // Items
+        let itemsHtml = '';
+        data.items.forEach(item => {
+            itemsHtml += `<div><img src="${item.image}" alt="${item.name}"><div>${item.name}<br>₹${item.price}</div></div>`;
+        });
+        document.getElementById("itemsContainer").innerHTML = itemsHtml;
+
+        // Address
+        let addrHtml = '';
+        data.address.forEach(addr => {
+            addrHtml += `<div>${addr.name}, ${addr.street}, ${addr.village}, ${addr.city}, ${addr.state} - ${addr.pincode}, Ph: ${addr.phonenumber}</div><hr>`;
+        });
+        document.getElementById("addressContainer").innerHTML = addrHtml;
+
+        // Order Info
+        document.getElementById("orderInfo").innerHTML = `
+            Subtotal: ${data.subtotal}<br>
+            Total: ${data.total}<br>
+            Savings: ${data.savings}
+        `;
+    })
+    .catch(err => alert("Error fetching order: " + err));
+
+    // Cancel order
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+        if(confirm("Are you sure you want to cancel this order?")){
+            fetch(`http://127.0.0.1:8000/cancel-order/${orderId}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => alert(data.message))
+            .catch(err => alert("Error cancelling order: " + err));
+        }
+    });
+</script>
+</body>
+</html>
+
+<!-- index.html page code -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PisaKart - Custom Combo Packs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background: #ffffff; 
+            color: #333; 
+        }
+        
+        .navbar {
+            position: block; 
+            top: 0; 
+            background: #ffffff; 
+            padding: 10px 20px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            z-index: 1000;
+        }
+        
+        .logo { 
+            font-weight: bold; 
+            font-size: 20px; 
+            color: #2e7d32; 
+        }
+        
+        .nav-links { 
+            display: flex;
+        }
+        
+        .nav-links a { 
+            margin-left: 15px; 
+            text-decoration: none; 
+            color: #2e7d32; 
+            font-weight: bold; 
+        }
+
+        .offer-banner {
+            background: linear-gradient(90deg, #1b5e20, #43a047);
+            color: white; 
+            text-align: center; 
+            padding: 10px 15px;
+            font-size: 16px; 
+            font-weight: bold;
+            animation: slide-in 1s ease-in-out;
+        }
+        
+        @keyframes slide-in {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .hero {
+            text-align: center; 
+            padding: 60px 20px; 
+            background: #f2fbf5;
+        }
+        
+        .hero h1 {
+            font-size: 34px; 
+            font-weight: bold; 
+            color: #2e7d32;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        
+        .hero .highlight { 
+            color: #1b5e20; 
+        }
+        
+        .hero p { 
+            font-size: 18px; 
+            margin: 10px auto 20px; 
+            max-width: 600px;
+        }
+        
+        .cta {
+            background: #43a047; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none;
+            font-size: 16px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        
+        .cta:hover { 
+            background: #2e7d32; 
+        }
+        
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        
+        .badges span {
+            background: #e8f5e9; 
+            color: #2e7d32; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            white-space: nowrap;
+        }
+        
+        .scroll-down {
+            margin-top: 20px; 
+            font-size: 24px; 
+            animation: bounce 1.5s infinite;
+            color: #2e7d32;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #2e7d32;
+            background: none;
+            border: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+            
+            .search {
+                order: 3;
+                width: 100%;
+                margin-top: 10px;
+                display: none;
+            }
+            
+            .search.active {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                text-align: center;
+                padding: 10px 0;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links a {
+                display: block;
+                margin: 10px 0;
+                padding: 8px 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .offer-banner {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 40px 15px;
+            }
+            
+            .hero h1 {
+                font-size: 24px;
+            }
+            
+            .badges span {
+                font-size: 14px;
+                padding: 4px 8px;
+            }
+            
+            .cta {
+                padding: 10px 20px;
+                font-size: 15px;
+            }
+        }
+
+        /* Second page styles */
+        header {
+            background: #f0f7f0;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        
+        .cta-button {
+            background: #2e7d32;
+            color: #fff;
+            padding: 8px 18px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .cta-button:hover {
+            background: #1b5e20;
+        }
+        .empty-pack {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            margin: 40px 0;
+            color: #2e7d32;
+        }
+        .empty-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .empty-box {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed #2e7d32;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .product-container {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+            margin: 40px auto;
+        }
+        .product-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .check-now {
+            margin-bottom: 30px;
+            text-align: center;
+            display: none;
+        }
+        .product-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 40px;
+        }
+        .product-row.middle {
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+        .product-option {
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            width: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+        .product-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.2);
+            border-color: #2e7d32;
+        }
+        .product-image {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .product-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .section {
+            padding: 60px 20px 40px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .section h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+        }
+        .pain-list {
+            list-style-type: none;
+            padding-left: 0;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .pain-list li {
+            background: #f0f7f0;
+            border-left: 4px solid #2e7d32;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        .pain-list strong {
+            color: #2e7d32;
+        }
+        .benefits, .trust, .faq {
+            display: grid;
+            gap: 15px;
+            font-size: 1rem;
+        }
+        .footer {
+            background-color: #212121;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 40px 20px 20px;
+        }
+        .footer-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        .footer-section {
+            flex: 1 1 180px;
+            min-width: 180px;
+        }
+        .footer-section h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .footer-section a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            margin: 6px 0;
+            font-size: 14px;
+        }
+        .footer-section p {
+            font-size: 14px;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+        .social-icons {
+            margin-top: 15px;
+        }
+        .social-icons a img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            filter: brightness(0) invert(1);
+        }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            border-top: 1px solid #333;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .product-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .empty-boxes {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-top {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .footer-section {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            header p, .cta-button {
+                font-size: 1rem;
+            }
+            .section {
+                padding: 40px 15px;
+            }
+            .product-title {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+            .product-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+            .product-row.middle {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .product-option {
+                width: 80%;
+                max-width: 200px;
+                padding: 12px;
+            }
+            .product-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        /* === Animations === */
+        @keyframes fadeSlideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Only for check-now */
+        .check-now.animated {
+            animation: fadeSlideUp 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">PisaKart</div>
+        <div class="nav-links">
+            <a href="myorders.html">My Orders</a>
+            <a href="#">Save</a>
+            <a href="#">Time</a>
+            <a href="#">Money</a>
+            <a href="#">Energy</a>
+        </div>
+        <button class="menu-toggle" aria-label="Menu">☰</button>
+    </div>
+    
+    <div class="offer-banner">
+        💥 Custom Combo Packs: Mix & Match Top Brands as per your needs – Save More, Get More! 🚚💨
+    </div>
+
+    <section class="hero">
+        <h1>Build Your Own Combo with <span class="highlight">Top-Selling Products!</span></h1>
+        <p>✨ We resell trusted brands & let YOU create packs that suit your lifestyle and budget.</p>
+        <a href="#emptyBoxes" style="background: #2e7d32;
+            color: #fff;
+            padding: 8px 18px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background 0.3s;">Start Picking Your Combo</a>
+        <div class="badges">
+            <span>🔥 Flexible Choices</span>
+            <span>🚚 Fast Local Delivery</span>
+            <span>💰 Extra Savings on Custom Packs</span>
+            <span>🎁 Everything you need in one Pack</span>
+        </div>
+        <div class="scroll-down">⬇</div>
+    </section>
+
+
+    <div class="empty-pack" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        <h2 style="margin: 0; font-family: Arial, sans-serif; color: #2e7d32;">Your Pack is Empty</h2></div>
+    
+    <div class="empty-boxes" id="emptyBoxes">
+        <div class="empty-box">1</div>
+        <div class="empty-box">2</div>
+        <div class="empty-box">3</div>
+        <div class="empty-box">4</div>
+        <div class="empty-box">5</div>
+    </div>
+<p style="text-align: center;margin: 40px 0;color: #2e7d32;">"Pick minimum 3 products to order your pack"</p>
+    <div class="product-container" id="product-container">
+        <h1 class="product-title">PISA - ON YOUR OWN</h1>
+
+        <div class="check-now" id="checkNow">
+            <h2>Your PISA Pack is Ready!</h2><br>
+            <a href="price.html" class="cta-button">Check Now</a>
+        </div>
+
+        <div class="product-row">
+            <a href="product1.html" class="product-option">
+                <img src="facewash.png" alt="Face Wash" class="product-image">
+                <div class="product-name">Face Wash</div>
+            </a>
+            <a href="product2.html" class="product-option">
+                <img src="sunscreen.png" alt="Sunscreen" class="product-image">
+                <div class="product-name">Sunscreen</div>
+            </a>
+        </div>
+        <div class="product-row middle">
+            <a href="product3.html" class="product-option">
+                <img src="soap.png" alt="Soap" class="product-image">
+                <div class="product-name">Soap</div>
+            </a>
+        </div>
+        <div class="product-row">
+            <a href="product4.html" class="product-option">
+                <img src="hair-oil.png" alt="Hair Oil" class="product-image">
+                <div class="product-name">Hair Oil</div>
+            </a>
+            <a href="product5.html" class="product-option">
+                <img src="rose.png" alt="Rose Water" class="product-image">
+                <div class="product-name">Rose Water</div>
+            </a>
+        </div>
+    </div>
+
+    <section class="section">
+        <h2>😫 Common Problems, 😌 Simple Solutions</h2>
+        <ul class="pain-list">
+            <li><strong>Problem:</strong> You have to buy the products from different platforms.<br><strong>Solution:</strong> Pisa Pack gives you all essentials in one place!</li>
+            <li><strong>Problem:</strong> You waste time researching which products are good.<br><strong>Solution:</strong> We handpick trusted, natural brands – no guesswork.</li>
+            <li><strong>Problem:</strong> You're tired of harsh, chemical-filled products.<br><strong>Solution:</strong> Every product in the pack is clean and gentle.</li>
+            <li><strong>Problem:</strong> It's tough to keep up a consistent routine.<br><strong>Solution:</strong> Pisa Pack includes only what you truly need – making daily care effortless.</li>
+            <li><strong>Problem:</strong> You want to gift someone, but don't know what's safe or useful.<br><strong>Solution:</strong> Pisa Pack is thoughtful, practical, and beautiful – the perfect gift!</li>
+            <li><strong>Problem:</strong> Too many trial-and-error purchases waste your money.<br><strong>Solution:</strong> Save money with our curated kit – no bad buys.</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>Why Pisa Pack?</h2>
+        <div class="benefits">
+            <p>✅ Save time & money – All essentials in one</p>
+            <p>✅ Trusted best-selling brands</p>
+            <p>✅ Natural & chemical-free ingredients</p>
+            <p>✅ Curated for Indian skin & hair</p>
+            <p>✅ Perfect for gifting or self-care</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Trusted by Thousands</h2>
+        <div class="trust">
+            <p>🔒 100% Genuine Products</p>
+            <p>💰 Cash on Delivery Available</p>
+            <p>🔁 Easy 5-Day Return Policy</p>
+            <p>🛡 Secure Payments via Shiprocket & Razorpay</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq">
+            <p><strong>Q:</strong> Are the products original?<br><strong>A:</strong> Yes, we only use genuine, brand-authorized products.</p>
+            <p><strong>Q:</strong> Is it suitable for sensitive skin?<br><strong>A:</strong> Absolutely! All products are chosen for gentle and natural care.</p>
+            <p><strong>Q:</strong> How long will delivery take?<br><strong>A:</strong> 3–5 days based on your location (fulfilled via Shiprocket).</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-section">
+                <h4>ABOUT</h4>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About Us</a>
+                <a href="stories.html">Pisa Stories</a>
+            </div>
+            <div class="footer-section">
+                <h4>HELP</h4>
+                <a href="payments.html">Payments</a>
+                <a href="shipping.html">Shipping</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+            <div class="footer-section">
+                <h4>CONSUMER POLICY</h4>
+                <a href="return.html">Cancellation & Returns</a>
+                <a href="terms.html">Terms Of Use</a>
+                <a href="security.html">Security</a>
+                <a href="privacy.html">Privacy</a>
+            </div>
+            <div class="footer-section">
+                <h4>MAIL US</h4>
+                <p>pisakarthelp@gmail.com,<br> Buildings 404, Startup Street,<br> Outer Ring Road, Bengaluru, 560103,<br> Karnataka, India</p>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2025 Pisakart.com</div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle functionality
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            
+            // Change icon based on state
+            if (navLinks.classList.contains('active')) {
+                this.innerHTML = '✕';
+            } else {
+                this.innerHTML = '☰';
+            }
+        });
+    
+        function updateEmptyBoxes() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const boxes = document.querySelectorAll('.empty-box');
+            const checkNow = document.getElementById('checkNow');
+
+            boxes.forEach((box, index) => {
+                if (cart[index]) {
+                    box.innerHTML = `<img src="${cart[index].image}" style="max-width:90%;max-height:90%">`;
+                    box.style.border = "2px solid #2e7d32";
+                } else {
+                    box.innerHTML = index + 1;
+                    box.style.border = "2px dashed #2e7d32";
+                }
+            });
+
+            if (cart.length >= 3) {
+                checkNow.style.display = 'block';
+                checkNow.classList.add('animated');
+            } else {
+                checkNow.style.display = 'none';
+                checkNow.classList.remove('animated');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', updateEmptyBoxes);
+        window.addEventListener('storage', updateEmptyBoxes);
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!--thankyou.html page-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You | Pisa Pack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #f0f7f0;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #2e7d32;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .confirmation-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 40px;
+            position: relative;
+        }
+        
+        .confirmation-icon {
+            width: 100px;
+            height: 100px;
+            background: #f0f7f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            color: #2e7d32;
+            font-size: 3rem;
+            border: 3px solid #2e7d32;
+        }
+        
+        .thank-you-title {
+            text-align: center;
+            color: #2e7d32;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .order-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .detail-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            flex: 1;
+            min-width: 250px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .detail-card h3 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+        }
+        
+        .order-summary {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .order-summary h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        
+        .product-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .product-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .product-image {
+            width: 80px;
+            height: 80px;
+            background: #f0f7f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 2rem;
+            color: #2e7d32;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .product-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2e7d32;
+        }
+        
+        .total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eaeaea;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .next-steps {
+            margin-top: 30px;
+        }
+        
+        .next-steps h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .step-card {
+            flex: 1;
+            min-width: 200px;
+            background: #f0f7f0;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #eaeaea;
+        }
+        
+        .step-icon {
+            font-size: 2.5rem;
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .step-card h3 {
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+        
+        .step-card p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .action-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 40px auto 20px;
+            padding: 16px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+        #continueShopping{
+                     display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 40px auto 20px;
+            padding: 16px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            text-decoration: none;   
+        }
+        #continueShopping:hover{
+          background: #1b5e20;  
+        }
+        .action-btn:hover {
+            background: #1b5e20;
+        }
+        
+        .support-note {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            background-color: #212121;
+            color: white;
+            padding: 40px 20px 20px;
+            margin-top: auto;
+        }
+        
+        .footer-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-section {
+            flex: 1 1 180px;
+            min-width: 180px;
+        }
+        
+        .footer-section h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .footer-section a {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            margin: 6px 0;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: #fff;
+        }
+        
+        .footer-section p {
+            font-size: 14px;
+            margin: 6px 0;
+            line-height: 1.5;
+            color: #ccc;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            border-top: 1px solid #333;
+            color: black;
+        }
+        
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 30px 20px;
+            }
+            
+            .order-details {
+                flex-direction: column;
+            }
+            
+            .steps-container {
+                flex-direction: column;
+            }
+            
+            .step-card {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .thank-you-title {
+                font-size: 1.8rem;
+            }
+            
+            .confirmation-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Pisa Pack - Your Complete Glow-Up Kit</h1>
+        <p>Thank you for your order! Your natural beauty journey begins now</p>
+    </div>
+    
+    <div class="confirmation-container">
+        <div class="confirmation-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h1 class="thank-you-title">Thank You For Your Order!</h1>
+        <p class="subtitle">Your order has been confirmed and will be processed shortly.</p>
+        
+        <!-- <div class="order-details">
+            <div class="detail-card">
+                <h3>Order Information</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Order Number:</span>
+                    <span class="detail-value">PISA-2025-7894</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Order Date:</span>
+                    <span class="detail-value">June 17, 2025</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Payment Method:</span>
+                    <span class="detail-value">Cash on Delivery</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value">₹899</span>
+                </div>
+            </div>
+            
+            <div class="detail-card">
+                <h3>Delivery Information</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">Priya Sharma</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">+91 98765 43210</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Address:</span>
+                    <span class="detail-value">123 Green Park, Bengaluru</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Estimated Delivery:</span>
+                    <span class="detail-value">June 20-22, 2025</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            
+            <div class="product-item">
+                <div class="product-image">🌹</div>
+                <div class="product-info">
+                    <h3>Rose Water Spray</h3>
+                    <p>Forest Essentials - Instant hydration & freshness</p>
+                </div>
+                <div class="price">₹299</div>
+            </div>
+            
+            <div class="product-item">
+                <div class="product-image">🧴</div>
+                <div class="product-info">
+                    <h3>Face Wash</h3>
+                    <p>Mamaearth - Gently removes dirt & oil</p>
+                </div>
+                <div class="price">₹249</div>
+            </div>
+            
+            <div class="product-item">
+                <div class="product-image">☀</div>
+                <div class="product-info">
+                    <h3>Sunscreen</h3>
+                    <p>Neutrogena - Broad-spectrum sun protection</p>
+                </div>
+                <div class="price">₹349</div>
+            </div>
+            
+            <div class="total">
+                <span>Total:</span>
+                <span>₹899</span>
+            </div>
+        </div> -->
+        
+        <div class="next-steps">
+            <h2>What Happens Next?</h2>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h3>Order Processing</h3>
+                    <p>We're preparing your Pisa Pack with care</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3>Shipment</h3>
+                    <p>Your order will be shipped within 24 hours</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3>Delivery</h3>
+                    <p>Expected delivery in 3-5 business days</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- <a href="index.html" class="action-btn">
+            <i class="fas fa-shopping-bag"></i> Continue Shopping
+        </a> -->
+        <button id="continueShopping">Continue Shopping</button>
+        
+        <p class="support-note">
+            Have questions? Contact us at <a href="pisakarthelp@gmail.com" style="color:#2e7d32;">pisakarthelp@gmail.com</a> or whatsapp +91 8185843878
+        </p>
+    </div>
+    
+    <!--<footer class="footer">
+    <div class="footer-top">
+            <div class="footer-section">
+                <h4>ABOUT</h4>
+                <a href="contact.html">Contact Us</a>
+                <a href="about.html">About Us</a>
+                <a href="stories.html">Pisa Stories</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>HELP</h4>
+                <a href="payments.html">Payments</a>
+                <a href="shipping.html">Shipping</a>
+                <a href="returns.html">Cancellation & Returns</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>CONSUMER POLICY</h4>
+                <a href="returns.html">Cancellation & Returns</a>
+                <a href="terms.html">Terms Of Use</a>
+                <a href="security.html">Security</a>
+                <a href="privacy.html">Privacy</a>
+            </div>
+
+            <div class="footer-section">
+                <h4>MAIL US</h4>
+                <p>pisakarthelp@gmail.com,<br>
+                Buildings 404, Startup Street,<br>
+                Outer Ring Road, Bengaluru, 560103,<br>
+                Karnataka, India</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>REGISTERED OFFICE ADDRESS</h4>
+                <p>Pisa Internet Private Limited,<br>
+                Buildings 404, Startup Street,<br>
+                Outer Ring Road, Devarabeesanahalli Village,<br>
+                Bengaluru, 560103,<br>
+                Karnataka, India<br>
+                CIN: U12345KA2025PTC000001</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom"> © 2025 Pisa.com | All Rights Reserved</div>
+    </footer>--> 
+    <div class="footer-bottom"> © 2025 Pisa.com | All Rights Reserved</div>
+    <script>
+  document.getElementById('continueShopping').addEventListener('click', function () {
+    // Clear localStorage or sessionStorage cart data
+    localStorage.removeItem('cart'); // or whatever key you stored cart in
+    sessionStorage.removeItem('cart'); // if used
+
+    // Optionally, clear entire localStorage (be careful)
+    // localStorage.clear();
+
+    // Redirect to home page
+    window.location.href = 'index.html';
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+<!--main.py file code-->
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
+from bson import ObjectId
+from fastapi import status
+
+# Load env vars
+load_dotenv()
+
+app = FastAPI()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# MongoDB setup
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["PISA"]
+
+# Collections
+orders_collection = db["customers"]
+carts_collection = db["items"]
+payment_collection = db["payments"]
+
+# ----------------- Models -----------------
+class Order(BaseModel):
+    name: str
+    phonenumber: int
+    street: str
+    village: str
+    pincode: int
+    city: str
+    state: str
+
+class OrderInDB(Order):
+    id: str
+
+class CartItem(BaseModel):
+    name: str
+    price: float
+    image: str
+    category: str
+
+class CartRequest(BaseModel):
+    items: list[CartItem]
+    subtotal: str
+    total: str
+    savings: str
+    timestamp: str
+
+class PaymentMethodRequest(BaseModel):
+    payment_method: str
+
+# ----------------- Helper -----------------
+def fix_objectids(doc):
+    for key, value in doc.items():
+        if isinstance(value, ObjectId):
+            doc[key] = str(value)
+        elif isinstance(value, dict):
+            fix_objectids(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    fix_objectids(item)
+    return doc
+def fix_objectids(doc):
+    if "_id" in doc:
+        doc["id"] = str(doc["_id"])
+        del doc["_id"]
+    return doc
+
+# ----------------- API Routes -----------------
+
+@app.post("/orders", response_model=OrderInDB, status_code=201)
+async def add_order(order: Order):
+    try:
+        order_dict = order.dict()
+        order_dict["created_at"] = datetime.utcnow()
+
+        # fetch latest cart
+        latest_cart = await carts_collection.find_one(sort=[('_id', -1)])
+        if latest_cart:
+            order_dict["items"] = latest_cart.get("items", [])
+            order_dict["subtotal"] = latest_cart.get("subtotal")
+            order_dict["total"] = latest_cart.get("total")
+            order_dict["savings"] = latest_cart.get("savings")
+        else:
+            order_dict["items"] = []
+            order_dict["subtotal"] = "N/A"
+            order_dict["total"] = "N/A"
+            order_dict["savings"] = "N/A"
+
+        result = await orders_collection.insert_one(order_dict)
+        return {**order_dict, "id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/orders", response_model=list[OrderInDB])
+async def get_orders():
+    orders = []
+    async for order in orders_collection.find():
+        order["id"] = str(order["_id"])
+        orders.append(order)
+    return orders
+
+@app.post("/api/payment-method")
+async def save_payment_method(request: PaymentMethodRequest):
+    if request.payment_method not in ["prepaid", "cod"]:
+        raise HTTPException(status_code=400, detail="Invalid payment method")
+    doc = {"payment_method": request.payment_method, "timestamp": datetime.utcnow()}
+    result = await payment_collection.insert_one(doc)
+    return {"status": "success", "payment_id": str(result.inserted_id)}
+
+@app.post("/save-cart")
+async def save_cart(cart: CartRequest):
+    try:
+        cart_data = cart.dict()
+        cart_data["processed_at"] = datetime.utcnow()
+        result = await carts_collection.insert_one(cart_data)
+        return {
+            "status": "success",
+            "cart_id": str(result.inserted_id),
+            "message": "Cart saved successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/payments", response_model=list[dict])
+async def get_payments():
+    payments = []
+    async for payment in payment_collection.find():
+        payments.append(fix_objectids(payment))
+    return payments
+
+@app.get("/carts", response_model=list[dict])
+async def get_carts():
+    carts = []
+    async for cart in carts_collection.find():
+        carts.append(fix_objectids(cart))
+    return carts
+
+@app.get("/user-orders")
+async def get_user_orders():
+    """
+    Combine order info with the nearest earlier cart (or fallback to latest cart).
+    """
+    orders = []
+    async for order in orders_collection.find().sort("created_at", -1):
+        order_id = str(order.get("_id"))
+        created_at = order.get("created_at", datetime.utcnow())
+        expected_delivery = created_at + timedelta(days=7)
+
+        # Find the nearest cart created before the order
+        cart = await carts_collection.find_one(
+            {"processed_at": {"$lte": created_at}},
+            sort=[("processed_at", -1)]
+        )
+
+        # If still not found, fallback to the latest cart
+        if not cart:
+            cart = await carts_collection.find_one(sort=[("processed_at", -1)])
+
+        if cart:
+            products = cart.get("items", [])
+            total_price = cart.get("total", "")
+        else:
+            products = []
+            total_price = "0"
+
+        orders.append({
+            "order_id": order_id,
+            "date": created_at.strftime("%d %b %Y"),
+            "status": "Processing",
+            "expected_delivery": expected_delivery.strftime("%d %b %Y"),
+            "products": products,
+            "total_price": total_price
+        })
+    return {"orders": orders}
+
+@app.get("/orders/by-phone/{phone}")
+async def get_orders_by_phone(phone: int):
+    orders = []
+    async for order in orders_collection.find({"phonenumber": phone}):
+        orders.append(fix_objectids(order))
+    return orders
+
+
+@app.get("/")
+async def root():
+    return {"message": "PISA DB API is running"}
+
+
+
+
+
+
+
+
+
+
+    
+
+
+    <!--price.html file code-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart | Pisa Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #2e7d32; /* PisaKart Green */
+      --primary-dark: #1b5e20;
+      --light-bg: #f0f7f0;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--white);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #pageHeader {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #pageHeader h1 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+    }
+
+    .image-container {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+
+    .cart-item-img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .cart-items {
+      margin-top: 30px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .item-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .remove-btn {
+      color: #ff4444;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
+    .price-summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+
+    .strategy {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+    button a{
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      color: white;
+      background-color: #2e7d32;
+    }
+
+    .total-row {
+      border-top: 2px solid var(--light-bg);
+      padding-top: 15px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      display: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--light-bg);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: white;
+      color: #999;
+      border-color: #999;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+    }
+
+    .min-items-notice {
+      text-align: center;
+      color: #ff4444;
+      margin: 15px 0 5px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .add-more-container {
+      text-align: center;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .add-more-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .add-more-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ✅ Message Card */
+    .popup-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 25px 30px;
+      border-radius: 16px;
+      z-index: 1000;
+      display: none;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .popup-card p {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .popup-card button {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .popup-card button:hover {
+      background: var(--primary-dark);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ✅ Header Section -->
+    <div id="pageHeader">
+      <h1>CHECK YOUR PISA PACK</h1>
+      <p class="subtitle">Review Your Pack - You Can Replace and Remove Items</p>
+    </div>
+
+    <div class="image-container" id="imageContainer"></div>
+
+    <div class="cart-items" id="cartContainer">
+      <div class="empty-cart" id="emptyCart">
+        <p>Your cart is empty</p>
+      </div>
+    </div>
+
+    <div class="price-summary" id="summaryCard" style="display:none">
+      <div class="price-row">
+        <span>Subtotal</span>
+        <span id="subtotal">₹0</span>
+      </div>
+      <div class="price-row">
+        <span>Shipping</span>
+        <span>FREE</span>
+      </div>
+      <div class="price-row">
+        <span>You save</span>
+        <span id="savings">₹0</span>
+      </div>
+
+      <div class="price-row total-row">
+        <span>Total</span>
+        <span id="totalPrice">₹0</span>
+      </div>
+      <div class="strategy">
+      <div class="budget">
+        <span>Left Budget?</span></div>
+        <div class="more">
+        <button><a href="index.html#product-container">Shop More</a></button></div></div>
+      
+      <div class="btn-group">
+        <button class="btn btn-secondary" id="confirmBoxBtn" disabled>Confirm Box</button>
+        <button class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+      </div>
+
+      <p class="min-items-notice" id="minItemsNotice">
+        You need at least 3 products in your cart to confirm your box
+      </p>
+      <div class="add-more-container" id="addMoreContainer">
+        <button class="add-more-btn" id="addMoreBtn">Add More Products</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Popup Card Message -->
+  <div class="popup-card" id="popupMessage">
+    <p>Pick minimum 3 products to Pack your PISA Pack</p>
+    <button id="pickNowBtn">Pick Now</button>
+  </div>
+
+  <script>
+  const cartContainer = document.getElementById('cartContainer');
+  const emptyCart = document.getElementById('emptyCart');
+  const summaryCard = document.getElementById('summaryCard');
+  const imageContainer = document.getElementById('imageContainer');
+  const confirmBoxBtn = document.getElementById('confirmBoxBtn');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const minItemsNotice = document.getElementById('minItemsNotice');
+  const addMoreContainer = document.getElementById('addMoreContainer');
+  const addMoreBtn = document.getElementById('addMoreBtn');
+  const popup = document.getElementById('popupMessage');
+  const pickNowBtn = document.getElementById('pickNowBtn');
+  const pageHeader = document.getElementById('pageHeader');
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+  // ✅ Generate sharedId if not exist
+  if (!localStorage.getItem('sharedOrderId')) {
+    const sharedId = Date.now().toString() + Math.random().toString(16).slice(2);
+    localStorage.setItem('sharedOrderId', sharedId);
+    console.log('Generated sharedOrderId:', sharedId);
+  }
+
+  function updateCartDisplay() {
+    cartContainer.innerHTML = '';
+    imageContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+      emptyCart.style.display = 'block';
+      summaryCard.style.display = 'none';
+      pageHeader.style.display = 'none';
+      popup.style.display = 'block';
+      return;
+    }
+
+    emptyCart.style.display = 'none';
+    summaryCard.style.display = 'block';
+    pageHeader.style.display = 'block';
+    popup.style.display = 'none';
+
+    let subtotal = 0;
+
+    cart.forEach((item, index) => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'cart-item';
+      itemEl.innerHTML = `
+        <div class="item-info">
+          <img src="${item.image}" alt="${item.name}" class="item-img">
+          <span>${item.name}</span>
+        </div>
+        <div>
+          <span>₹${item.price}</span>
+          <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+        </div>
+      `;
+      cartContainer.appendChild(itemEl);
+
+      const imgEl = document.createElement('img');
+      imgEl.src = item.image;
+      imgEl.alt = item.name;
+      imgEl.className = 'cart-item-img';
+      imageContainer.appendChild(imgEl);
+
+      subtotal += item.price;
+    });
+
+    document.getElementById('subtotal').textContent = `₹${subtotal}`;
+    document.getElementById('totalPrice').textContent = `₹${subtotal}`;
+    document.getElementById('savings').textContent = `₹${Math.floor(subtotal * 0.1)}`;
+
+    if (cart.length >= 3) {
+      confirmBoxBtn.disabled = false;
+      minItemsNotice.style.display = 'none';
+      addMoreContainer.style.display = 'none';
+    } else {
+      confirmBoxBtn.disabled = true;
+      minItemsNotice.style.display = 'block';
+      addMoreContainer.style.display = 'block';
+      setTimeout(() => {
+        addMoreBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+
+    checkoutBtn.style.display = 'none';
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartDisplay();
+  }
+
+  async function confirmBox() {
+    try {
+      const sharedId = localStorage.getItem('sharedOrderId');
+
+      const cartData = {
+        id: sharedId,  // ✅ add shared ID
+        items: cart.map(item => ({
+          name: item.name || 'Unnamed Product',
+          price: item.price,
+          image: item.image || '',
+          category: item.category || 'uncategorized',
+          quantity: item.quantity || 1
+        })),
+        subtotal: document.getElementById('subtotal').textContent,
+        total: document.getElementById('totalPrice').textContent,
+        savings: document.getElementById('savings').textContent,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch('http://localhost:8000/save-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cartData)
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || 'Failed to save cart');
+
+      alert('Your box has been confirmed! Cart ID: ' + result.cart_id);
+      checkoutBtn.style.display = 'block';
+      confirmBoxBtn.style.display = 'none';
+      minItemsNotice.style.display = 'none';
+      addMoreContainer.style.display = 'none';
+    } catch (error) {
+      alert('Error confirming your box: ' + error.message);
+    }
+  }
+
+  confirmBoxBtn.addEventListener('click', confirmBox);
+  checkoutBtn.addEventListener('click', () => window.location.href = 'pisa2.html');
+  addMoreBtn.addEventListener('click', () => window.location.href = 'index.html#product-row');
+  pickNowBtn.addEventListener('click', () => window.location.href = 'index.html#product-container');
+
+  document.addEventListener('DOMContentLoaded', updateCartDisplay);
+</script>
+
+</body>
+</html>
+
+
+
+
+
+<!--pisa2.html file code-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Form</title>
+      <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        form {
+            max-width: 500px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1b5e20;
+        }
+        #btn2 {
+            display: none;
+            max-width: 500px;
+            margin: 1rem auto;
+        }
+
+        /* ======================
+           MEDIA QUERIES
+        ====================== */
+        
+        /* Tablets (768px and below) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1.2rem;
+            }
+            
+            form {
+                padding: 1.5rem;
+            }
+            
+            input, textarea {
+                padding: 11px 14px;
+                font-size: 15px;
+            }
+            
+            button {
+                padding: 13px;
+                font-size: 17px;
+            }
+        }
+        
+        /* Large Phones (576px and below) */
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                margin-bottom: 1rem;
+            }
+            
+            form {
+                padding: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            input, textarea {
+                padding: 10px 12px;
+                margin: 6px 0 12px;
+                font-size: 14px;
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
+        }
+        
+        /* Small Phones (400px and below) */
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            form {
+                padding: 1rem;
+            }
+            
+            input, textarea {
+                padding: 9px 11px;
+                font-size: 13px;
+            }
+            
+            button {
+                padding: 11px;
+                font-size: 15px;
+            }
+        }
+        
+        /* Very Small Phones (350px and below) */
+        @media (max-width: 350px) {
+            body {
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            form {
+                padding: 0.8rem;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1 id="formHeading">Create New Order</h1>
+
+<form id="orderForm">
+  <input type="text" id="name" placeholder="Name" required>
+  <input type="number" id="phonenumber" placeholder="Phone Number" required>
+  <input type="text" id="street" placeholder="Street" required>
+  <input type="text" id="village" placeholder="Village" required>
+  <input type="number" id="pincode" placeholder="Pincode" required>
+  <input type="text" id="city" placeholder="City" required>
+  <input type="text" id="state" placeholder="State" required>
+  <input type="hidden" id="payment_method" value="COD">
+  <button id="btn1" type="button">Confirm Details</button>
+</form>
+
+<!-- Step 2 Button (Initially hidden) -->
+<button id="btn2">Select Payment Method</button>
+
+<div id="response"></div>
+
+<script>
+  // Auto-fill city/state from pincode
+  document.getElementById("pincode").addEventListener("blur", function () {
+    const pin = this.value;
+    if (pin.length === 6) {
+      fetch(`https://api.postalpincode.in/pincode/${pin}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data[0].Status === "Success") {
+            const office = data[0].PostOffice[0];
+            document.getElementById("city").value = office.District;
+            document.getElementById("state").value = office.State;
+          } else {
+            alert("Invalid Pincode");
+          }
+        });
+    }
+  });
+
+  document.getElementById("btn1").addEventListener("click", async function () {
+    const orderData = {
+      name: document.getElementById("name").value,
+      phonenumber: parseInt(document.getElementById("phonenumber").value),
+      street: document.getElementById("street").value,
+      village: document.getElementById("village").value,
+      pincode: parseInt(document.getElementById("pincode").value),
+      city: document.getElementById("city").value,
+      state: document.getElementById("state").value,
+        payment_method: document.getElementById("payment_method").value
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // ✅ Update heading
+        document.getElementById("formHeading").innerText = "Your Order is Received!";
+
+        // ✅ Show message
+        // document.getElementById("response").innerHTML = `
+        //   <p style="color: green;">Order created successfully! ID: ${result.id}</p>
+        // `;
+        document.getElementById("response").innerHTML = `
+  <p style="color: green; text-align: center;">Order created successfully! ID: ${result.id}</p>
+`;
+
+
+        // ✅ Hide form
+        document.getElementById("orderForm").style.display = "none";
+
+        // ✅ Show Step 2 button
+        document.getElementById("btn2").style.display = "block";
+      } else {
+        document.getElementById("response").innerHTML = `
+          <p style="color: red;">Error: ${result.detail || "Unknown error"}</p>
+        `;
+      }
+    } catch (error) {
+      document.getElementById("response").innerHTML = `
+        <p style="color: red;">Network error: ${error.message}</p>
+      `;
+    }
+  });
+
+  document.getElementById("btn2").addEventListener("click", function () {
+    window.location.href = "payment.html"; // Replace with actual page
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+<!--payment.html file-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment | Pisa Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --primary-light: #f0f7f0;
+      --secondary-color: #1b5e20;
+      --text-color: #333;
+      --text-light: #666;
+      --border-color: #eaeaea;
+      --background-color: #f9f9f9;
+      --white: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .header {
+      background: var(--primary-light);
+      padding: 30px;
+      text-align: center;
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .content { padding: 30px; }
+    .footer {
+      text-align: center;
+      padding: 25px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      background: var(--background-color);
+      border-top: 1px solid var(--border-color);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    h3 { font-size: 1.1rem; margin-bottom: 5px; }
+    p { color: var(--text-light); }
+    .header p { font-size: 1.1rem; }
+    .payment-options { margin-bottom: 30px; }
+    .option-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .option-card:hover { border-color: var(--primary-color); }
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    .radio-btn {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      margin-right: 20px;
+      position: relative;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .radio-btn::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .option-card.selected .radio-btn { border-color: var(--primary-color); }
+    .option-card.selected .radio-btn::after { opacity: 1; }
+    .option-details { flex: 1; min-width: 0; }
+    .payment-icons {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      flex-shrink: 0;
+    }
+    .payment-icon {
+      width: 40px;
+      height: 25px;
+      background: var(--border-color);
+      margin-left: 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0;
+      pointer-events: none;
+      margin-top: 20px;
+    }
+    .action-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .action-btn:hover { background: var(--secondary-color); }
+    .secure-note {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .secure-note i { color: var(--primary-color); margin-right: 8px; }
+    @media (max-width: 600px) {
+      .container { margin: 20px auto; }
+      .header { padding: 20px 15px; }
+      .content { padding: 25px 20px; }
+      .header h1 { font-size: 1.8rem; }
+      .option-card { flex-direction: column; align-items: flex-start; }
+      .radio-btn { margin-bottom: 15px; }
+      .payment-icons {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Complete Your Purchase</h1>
+      <p>Secure payment with multiple options</p>
+    </div>
+    <div class="content">
+      <div class="payment-options">
+        <h2>Select Payment Method</h2>
+        <div class="option-card" id="prepaidOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Prepaid Payment</h3>
+            <p>Pay now using credit/debit card, UPI, or wallet</p>
+          </div>
+          <div class="payment-icons">
+            <div class="payment-icon">VISA</div>
+            <div class="payment-icon">MC</div>
+            <div class="payment-icon">UPI</div>
+          </div>
+        </div>
+        <div class="option-card" id="codOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Cash on Delivery</h3>
+            <p>Pay when your order arrives</p>
+          </div>
+        </div>
+      </div>
+      <button class="action-btn" id="finishBtn">Finish Up</button>
+      <div class="secure-note">
+        <i>🔒</i> Your payment details are securely encrypted
+      </div>
+    </div>
+    <div class="footer">© 2025 Pisa.com | All Rights Reserved</div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const prepaidOption = document.getElementById('prepaidOption');
+  const codOption = document.getElementById('codOption');
+  const finishBtn = document.getElementById('finishBtn');
+  let selectedOption = null;
+
+  function selectOption(option) {
+    prepaidOption.classList.remove('selected');
+    codOption.classList.remove('selected');
+    option.classList.add('selected');
+    selectedOption = option.id;
+    finishBtn.classList.add('active');
+  }
+
+  prepaidOption.addEventListener('click', () => selectOption(prepaidOption));
+  codOption.addEventListener('click', () => selectOption(codOption));
+
+  finishBtn.addEventListener('click', async () => {
+    if (!selectedOption) return;
+    
+    const paymentMethod = selectedOption === 'prepaidOption' ? 'prepaid' : 'cod';
+    const order_id = localStorage.getItem('order_id');
+    
+    if (!order_id) {
+      alert('Order ID missing! Please place order first.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/api/payment-method', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+          payment_method: paymentMethod,
+          order_id: order_id  // Include order reference
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to save payment method');
+
+      if (paymentMethod === 'prepaid') {
+        window.location.href = 'https://rzp.io/rzp/eG5lAORU';
+      } else {
+        window.location.href = 'thankyou.html';
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+    <!--dashboard.html file code-->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PISA Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #1b5e20;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --white: #fff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        tr:hover {
+            background-color: #e9f5e9;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        /* Additional styles for items display */
+        .items-list {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+            background: #f8f8f8;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-price {
+            color: var(--primary-color);
+        }
+        
+        .row-number {
+            font-weight: bold;
+            color: var(--secondary-color);
+            width: 30px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PISA Dashboard</h1>
+        
+        <button class="refresh-btn" onclick="loadAllData()">Refresh Data</button>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <div class="stat-value" id="total-orders">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Payments</h3>
+                <div class="stat-value" id="total-payments">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Carts</h3>
+                <div class="stat-value" id="total-carts">0</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Orders</h2>
+            <div class="table-responsive">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Pincode</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Payment Methods</h2>
+            <div class="table-responsive">
+                <table id="payments-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Payment Method</th>
+                            <th>Timestamp (IST)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-body">
+                        <!-- Payments will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+
+        <div class="section">
+            <h2>Saved Carts</h2>
+            <div class="table-responsive">
+                <table id="carts-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>Items</th>
+                            <th>Subtotal</th>
+                            <th>Total</th>
+                            <th>Savings</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="carts-body">
+                        <!-- Carts will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="section">
+    <h2>Update Order Status</h2>
+    <div class="table-responsive">
+        <table id="update-status-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>New Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="update-status-body">
+                <!-- Orders will load here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+    <script>
+        // Base API URL
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Load all data when page loads
+        document.addEventListener('DOMContentLoaded', loadAllData);
+        
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadOrders(),
+                    loadPayments(),
+                    loadCarts()
+                ]);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Failed to load data. Check console for details.');
+            }
+        }
+        
+        async function loadOrders() {
+            const response = await fetch(`${API_BASE_URL}/orders`);
+            const orders = await response.json();
+            
+            document.getElementById('total-orders').textContent = orders.length;
+            
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = '';
+            
+            orders.forEach((order, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td class="row-number">${index + 1}</td>
+                    <td>${order.id || order._id}</td>
+                    <td>${order.name}</td>
+                    <td>${order.phonenumber}</td>
+                    <td>${order.street}, ${order.village}</td>
+                    <td>${order.city}</td>
+                    <td>${order.state}</td>
+                    <td>${order.pincode}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        
+        async function loadPayments() {
+            const response = await fetch(`${API_BASE_URL}/payments`);
+            const payments = await response.json();
+            
+            document.getElementById('total-payments').textContent = payments.length;
+            
+            const tbody = document.getElementById('payments-body');
+            tbody.innerHTML = '';
+            
+            payments.forEach((payment, index) => {
+                const row = document.createElement('tr');
+                
+                // Convert to IST (UTC+5:30)
+                const utcDate = new Date(payment.timestamp);
+                const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
+                
+                // Format options for Indian locale
+                const options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Kolkata'
+                };
+                
+                row.innerHTML = `
+                    <td class="row-number">${index + 1}</td>
+                    <td>${payment._id}</td>
+                    <td>${payment.payment_method.toUpperCase()}</td>
+                    <td>${istDate.toLocaleString('en-IN', options)}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        async function loadCarts() {
+            const response = await fetch(`${API_BASE_URL}/carts`);
+            const carts = await response.json();
+            
+            document.getElementById('total-carts').textContent = carts.length;
+            
+            const tbody = document.getElementById('carts-body');
+            tbody.innerHTML = '';
+            
+            carts.forEach((cart, index) => {
+                const row = document.createElement('tr');
+                
+                // Create items list HTML
+                let itemsHtml = '<div class="items-list">';
+                cart.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="item-row">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-price">₹${item.price.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                itemsHtml += '</div>';
+                
+                // Remove any existing ₹ symbol from the amounts before displaying
+                const cleanSubtotal = cart.subtotal.toString().replace('₹', '');
+                const cleanTotal = cart.total.toString().replace('₹', '');
+                const cleanSavings = (cart.savings || '0').toString().replace('₹', '');
+                
+                row.innerHTML = `
+                    <td class="row-number">${index + 1}</td>
+                    <td>${cart._id}</td>
+                    <td>${itemsHtml}</td>
+                    <td>₹${parseFloat(cleanSubtotal).toFixed(2)}</td>
+                    <td>₹${parseFloat(cleanTotal).toFixed(2)}</td>
+                    <td>₹${parseFloat(cleanSavings).toFixed(2)}</td>
+                    <td>${new Date(cart.timestamp || cart.processed_at).toLocaleString('en-IN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Kolkata'
+                    })}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+<!--myorders.html file code-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Orders | PISA</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #phoneInput {
+      padding: 8px;
+      width: 200px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 8px 12px;
+      margin-left: 5px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .order-item {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px 0;
+    }
+    .order-product {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 5px 0;
+    }
+    .order-product img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .order-buttons button {
+      margin-right: 8px;
+      background: #2196F3;
+    }
+    .order-buttons button:last-child {
+      background: #f44336;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Check Your Orders</h2>
+<div style="text-align: center;">
+  <input type="number" id="phoneInput" placeholder="Enter your phone number">
+  <button onclick="fetchMyOrders()">View My Orders</button>
+</div>
+
+<div id="myOrdersContainer"></div>
+
+<script>
+async function fetchMyOrders() {
+  const phone = document.getElementById('phoneInput').value;
+  if (!phone) {
+    alert('Please enter your phone number!');
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8000/orders/by-phone/${phone}`);
+    const orders = await response.json();
+
+    const container = document.getElementById('myOrdersContainer');
+    container.innerHTML = ''; // clear old data
+
+    if (orders.length === 0) {
+      container.innerHTML = '<p style="text-align:center;">No orders found for this phone number.</p>';
+      return;
+    }
+
+    orders.forEach(order => {
+      // Calculate expected delivery: 5 days after created_at
+      const createdDate = new Date(order.created_at);
+      const expectedDate = new Date(createdDate);
+      expectedDate.setDate(createdDate.getDate() + 5);
+
+      const orderDiv = document.createElement('div');
+      orderDiv.className = 'order-item';
+
+      // Show each product in order
+      let itemsHTML = '';
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+          itemsHTML += `
+            <div class="order-product">
+              <img src="${item.image}" alt="${item.name}">
+              <span>${item.name} - ₹${item.price}</span>
+            </div>
+          `;
+        });
+      }
+
+      orderDiv.innerHTML = `
+        <h4>Order ID: ${order.id}</h4>
+        ${itemsHTML}
+        <p>Subtotal: ${order.subtotal || 'N/A'}</p>
+        <p>Total: ${order.total || 'N/A'}</p>
+        <p>Savings: ${order.savings || 'N/A'}</p>
+        <p>Ordered Date: ${createdDate.toLocaleString()}</p>
+        <p>Expected Delivery: ${expectedDate.toLocaleDateString()}</p>
+        <div class="order-buttons">
+          <button onclick="trackOrder('${order.id}')">Track Order</button>
+          <button onclick="cancelOrder('${order.id}')">Cancel Order</button>
+        </div>
+      `;
+      container.appendChild(orderDiv);
+    });
+  } catch (error) {
+    alert('Failed to fetch orders: ' + error.message);
+  }
+}
+
+// Example static handlers (replace later with real)
+function trackOrder(orderId) {
+  alert('Track order clicked for ID: ' + orderId);
+}
+
+function cancelOrder(orderId) {
+  alert('Cancel order clicked for ID: ' + orderId);
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+# ✅✅✅ REWRITTEN main.py — FIXED & ENHANCED TO STORE pisa_code IN `items` COLLECTION ✅✅✅
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
+from bson import ObjectId
+from fastapi import status
+import random
+from fastapi.responses import HTMLResponse
+from typing import Optional, List
+
+# Load env vars
+load_dotenv()
+
+app = FastAPI()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# MongoDB setup
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["PISA"]
+
+# Collections
+orders_collection = db["customers"]
+carts_collection = db["items"]
+payment_collection = db["payments"]
+
+# ----------------- Models -----------------
+class Order(BaseModel):
+    pisa_code: str
+    order_ref_id: str
+    created_at: datetime = None
+    items: List[dict] = []
+    subtotal: str = "0"
+    total: str = "0"
+    status: str = "Ordered"
+
+class OrderInDB(Order):
+    id: str
+
+class CartItem(BaseModel):
+    name: str
+    price: float
+    image: str
+    category: str
+
+class CartRequest(BaseModel):
+    items: list[CartItem]
+    status: Optional[str] = None
+    subtotal: str
+    total: str
+    savings: str
+    timestamp: str
+
+class PaymentMethodRequest(BaseModel):
+    payment_method: str
+
+class Address(BaseModel):
+    name: str
+    phonenumber: int
+    street: str
+    village: str
+    pincode: int
+    city: str
+    state: str
+
+class StatusUpdate(BaseModel):
+    order_id: str
+    new_status: str
+
+class Customer(BaseModel):
+    user_code: str
+    name: str
+    addresses: List[Address]
+    order_ref_ids: List[str] = []
+    created_at: datetime = None
+
+class Payment(BaseModel):
+    order_ref_id: str
+    payment_method: str
+    timestamp: datetime = None
+
+# ----------------- Helpers -----------------
+def fix_objectids(doc):
+    if isinstance(doc, list):
+        return [fix_objectids(item) for item in doc]
+    if not isinstance(doc, dict):
+        return doc
+    if "_id" in doc:
+        doc["id"] = str(doc["_id"])
+        del doc["_id"]
+    for key, value in doc.items():
+        if isinstance(value, dict):
+            doc[key] = fix_objectids(value)
+        elif isinstance(value, list):
+            doc[key] = [fix_objectids(item) if isinstance(item, dict) else item for item in value]
+    return doc
+
+def generate_order_ref_id():
+    return str(ObjectId())
+
+# ----------------- Routes -----------------
+@app.post("/save-cart")
+async def save_cart(cart: CartRequest):
+    try:
+        cart_data = cart.dict()
+        cart_data["processed_at"] = datetime.utcnow()
+
+        if "status" not in cart_data or not cart_data["status"]:
+            cart_data["status"] = "Confirmed" if cart_data.get("items") else "Ordered"
+
+        latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+        pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+        if pisa_code:
+            cart_data["pisa_code"] = pisa_code
+
+        result = await carts_collection.insert_one(cart_data)
+        return {
+            "status": "success",
+            "cart_id": str(result.inserted_id),
+            "message": "Cart saved successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/payment-method")
+async def save_payment_method(request: PaymentMethodRequest):
+    if request.payment_method not in ["prepaid", "cod"]:
+        raise HTTPException(status_code=400, detail="Invalid payment method")
+
+    latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+    pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+
+    doc = {
+        "payment_method": request.payment_method,
+        "timestamp": datetime.utcnow(),
+        "user_code": pisa_code
+    }
+    result = await payment_collection.insert_one(doc)
+    return {"status": "success", "payment_id": str(result.inserted_id)}
+
+@app.post("/orders", response_model=OrderInDB, status_code=201)
+async def add_order(order: Order):
+    try:
+        order_dict = order.dict()
+        order_dict["created_at"] = datetime.utcnow()
+        order_dict["order_ref_id"] = generate_order_ref_id()
+
+        pisa_code = order_dict.get("pisa_code")
+        if not pisa_code:
+            latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+            pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+        order_dict["user_code"] = pisa_code
+
+        latest_cart = await carts_collection.find_one(sort=[('_id', -1)])
+        latest_payment = await payment_collection.find_one(sort=[('_id', -1)])
+
+        if latest_cart:
+            order_dict.update({
+                "items": latest_cart.get("items", []),
+                "subtotal": latest_cart.get("subtotal"),
+                "total": latest_cart.get("total"),
+                "savings": latest_cart.get("savings")
+            })
+            await carts_collection.update_one(
+                {"_id": latest_cart["_id"]},
+                {"$set": {
+                    "order_ref_id": order_dict["order_ref_id"],
+                    "user_code": pisa_code
+                }}
+            )
+
+        if latest_payment:
+            order_dict["payment_method"] = latest_payment.get("payment_method")
+            await payment_collection.update_one(
+                {"_id": latest_payment["_id"]},
+                {"$set": {
+                    "order_ref_id": order_dict["order_ref_id"],
+                    "user_code": pisa_code
+                }}
+            )
+
+        result = await orders_collection.insert_one(order_dict)
+        return {**order_dict, "id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/orders")
+async def get_orders():
+    orders = []
+    async for doc in orders_collection.find():
+        address = doc.get("addresses", [{}])[0]
+        orders.append({
+            "id": str(doc.get("_id")),
+            "pisa_code": doc.get("user_code", "-"),
+            "name": doc.get("name", address.get("name", "-")),
+            "phonenumber": doc.get("phonenumber", address.get("phonenumber", "-")),
+            "street": address.get("street", "-"),
+            "village": address.get("village", "-"),
+            "pincode": address.get("pincode", "-"),
+            "city": address.get("city", "-"),
+            "state": address.get("state", "-")
+        })
+    return orders
+
+@app.get("/payments")
+async def get_payments():
+    payments = []
+    async for payment in payment_collection.find():
+        payments.append(fix_objectids(payment))
+    return payments
+
+@app.get("/carts")
+async def get_carts():
+    carts = []
+    async for cart in carts_collection.find():
+        cart_data = fix_objectids(cart)
+        carts.append(cart_data)
+    return carts
+
+@app.post("/carts/update-status")
+async def update_cart_status(data: StatusUpdate):
+    try:
+        result = await carts_collection.update_one(
+            {"_id": ObjectId(data.order_id)},
+            {"$set": {"status": data.new_status}}
+        )
+        if result.matched_count:
+            return {"message": "Status updated successfully"}
+        raise HTTPException(status_code=404, detail="Cart not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/")
+async def root():
+    return {"message": "PISA DB API is running"}
+
+@app.get("/my-orders", response_class=HTMLResponse)
+async def my_orders_page():
+    with open("myorders.html") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+@app.get("/user-info/{pisa_code}")
+async def get_user_info(pisa_code: str):
+    user = await orders_collection.find_one({"$or": [{"pisa_code": pisa_code}, {"user_code": pisa_code}]})
+    if not user:
+        raise HTTPException(status_code=404, detail="We couldn't find your account.")
+    name = user.get("name") or user.get("addresses", [{}])[0].get("name")
+    return {
+        "name": name or "Customer",
+        "address": format_user_address(user) or "Address not available"
+    }
+
+def format_user_address(user):
+    if "street" in user:
+        return ", ".join(filter(None, [
+            user.get("street"),
+            user.get("village"),
+            user.get("city"),
+            user.get("state"),
+            str(user.get("pincode", ""))
+        ]))
+    elif "addresses" in user and user["addresses"]:
+        addr = user["addresses"][0]
+        return ", ".join(filter(None, [
+            addr.get("street"),
+            addr.get("village"),
+            addr.get("city"),
+            addr.get("state"),
+            str(addr.get("pincode", ""))
+        ]))
+    return None
+
+@app.get("/my-orders/{pisa_code}")
+async def get_my_orders(pisa_code: str):
+    user = await orders_collection.find_one({"$or": [{"pisa_code": pisa_code}, {"user_code": pisa_code}]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    orders = []
+    async for order in orders_collection.find({"$or": [{"pisa_code": pisa_code}, {"user_code": pisa_code}]}):
+        order_ref_id = order.get("order_ref_id")
+        if not order_ref_id:
+            continue
+        cart = await carts_collection.find_one({"order_ref_id": order_ref_id})
+        if not cart:
+            continue
+        orders.append({
+            "order_id": str(order.get("_id")),
+            "order_date": order.get("created_at", datetime.utcnow()),
+            "items": cart.get("items", []),
+            "total": cart.get("total", "0"),
+            "status": cart.get("status", "Processing")
+        })
+    orders.sort(key=lambda x: x["order_date"], reverse=True)
+    return {
+        "name": user.get("name", "Customer"),
+        "address": format_user_address(user) or "-",
+        "orders": orders
+    }
+
+@app.post("/create-user")
+async def create_user(address: Address):
+    while True:
+        user_code = str(random.randint(100000, 999999))
+        exists = await orders_collection.find_one({"user_code": user_code})
+        if not exists:
+            break
+    user_doc = {
+        "user_code": user_code,
+        "addresses": [address.dict()],
+        "created_at": datetime.utcnow()
+    }
+    await orders_collection.insert_one(user_doc)
+    return {"detail": "User created", "user_code": user_code}
+
+@app.post("/create_user")
+async def create_user_alt(data: dict):
+    pisa_code = str(random.randint(100000, 999999))
+    while await orders_collection.find_one({"pisa_code": pisa_code}):
+        pisa_code = str(random.randint(100000, 999999))
+    data["pisa_code"] = pisa_code
+    data["orders"] = []
+    data["created_at"] = datetime.utcnow()
+    await orders_collection.insert_one(data)
+    return {"pisa_code": pisa_code}
+
+
+
+
+
+
+
+
+
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import datetime, timedelta, timezone
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
+from bson import ObjectId
+from fastapi import status
+import random
+from fastapi.responses import HTMLResponse
+from typing import Optional, List
+from models import Address
+
+# Load env vars
+load_dotenv()
+
+app = FastAPI()
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# MongoDB setup
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["PISA"]
+
+# Collections
+orders_collection = db["customers"]
+carts_collection = db["items"]
+payment_collection = db["payments"]
+
+# ----------------- Models -----------------
+class Order(BaseModel):
+    name: str
+    phonenumber: int
+    street: str
+    village: str
+    pincode: int
+    city: str
+    state: str
+    pisa_code: str = None
+
+class OrderInDB(Order):
+    id: str
+    order_ref_id: str
+
+class CartItem(BaseModel):
+    name: str
+    price: float
+    image: str
+    category: str
+
+class CartRequest(BaseModel):
+    items: list[CartItem]
+    status: Optional[str] = None  # Make status optional
+    subtotal: str
+    total: str
+    savings: str
+    timestamp: str
+
+class PaymentMethodRequest(BaseModel):
+    payment_method: str
+
+# class Address(BaseModel):
+#     name: str
+#     phonenumber: int
+#     street: str
+#     village: str
+#     pincode: int
+#     city: str
+#     state: str
+
+class StatusUpdate(BaseModel):
+    order_id: str
+    new_status: str
+
+class Customer(BaseModel):
+    user_code: str
+    name: str
+    addresses: List[Address]
+    order_ref_ids: List[str] = []  # Track all order references for this customer
+    created_at: datetime = None
+
+# class Order(BaseModel):
+#     pisa_code: str  # Now required field
+#     order_ref_id: str
+#     created_at: datetime = None
+#     items: List[CartItem] = []
+#     subtotal: str = "0"
+#     total: str = "0"
+#     status: str = "Ordered"
+class Order(BaseModel):
+    pisa_code: str
+    order_ref_id: str
+    address_id: str  # NEW: Reference to specific address used
+    created_at: datetime = None
+    items: List[CartItem] = []
+    subtotal: str = "0"
+    total: str = "0"
+    status: str = "Ordered"
+
+class Address(BaseModel):
+    id: str = None  # NEW: Unique identifier for each address
+    name: str
+    phonenumber: int
+    street: str
+    village: str
+    pincode: int
+    city: str
+    state: str
+    is_default: bool = False  # NEW: Mark default address
+
+class Payment(BaseModel):
+    order_ref_id: str
+    payment_method: str
+    timestamp: datetime = None
+
+class CustomerResponse(BaseModel):
+    name: str
+    address: str
+    pisa_code: str
+
+class OrderItem(BaseModel):
+    name: str
+    price: float
+    image: str
+    category: str
+
+class OrderResponse(BaseModel):
+    order_id: str
+    date: str
+    items: List[OrderItem]
+    subtotal: float
+    total: float
+    savings: float
+    status: str
+    payment_method: str    
+# ----------------- Helper Functions -----------------
+def fix_objectids(doc):
+    if isinstance(doc, list):
+        return [fix_objectids(item) for item in doc]
+    if not isinstance(doc, dict):
+        return doc
+    if "_id" in doc:
+        doc["id"] = str(doc["_id"])
+        del doc["_id"]
+    for key, value in doc.items():
+        if isinstance(value, dict):
+            doc[key] = fix_objectids(value)
+        elif isinstance(value, list):
+            doc[key] = [fix_objectids(item) if isinstance(item, dict) else item for item in value]
+    return doc
+
+def generate_order_ref_id():
+    return str(ObjectId())
+
+# ----------------- API Routes -----------------
+
+# @app.post("/orders", response_model=OrderInDB, status_code=201)
+# async def add_order(order: Order):
+#     try:
+#         order_dict = order.dict()
+#         order_dict["created_at"] = datetime.utcnow()
+#         order_dict["order_ref_id"] = generate_order_ref_id()
+
+#         latest_cart = await carts_collection.find_one(sort=[('_id', -1)])
+#         latest_payment = await payment_collection.find_one(sort=[('_id', -1)])
+
+#         if latest_cart:
+#             order_dict.update({
+#                 "items": latest_cart.get("items", []),
+#                 "subtotal": latest_cart.get("subtotal"),
+#                 "total": latest_cart.get("total"),
+#                 "savings": latest_cart.get("savings")
+#             })
+#             await carts_collection.update_one(
+#                 {"_id": latest_cart["_id"]},
+#                 {"$set": {"order_ref_id": order_dict["order_ref_id"]}}
+#             )
+
+#         if latest_payment:
+#             order_dict["payment_method"] = latest_payment.get("payment_method")
+#             await payment_collection.update_one(
+#                 {"_id": latest_payment["_id"]},
+#                 {"$set": {"order_ref_id": order_dict["order_ref_id"]}}
+#             )
+
+#         result = await orders_collection.insert_one(order_dict)
+#         return {**order_dict, "id": str(result.inserted_id)}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+# @app.post("/save-cart")
+# async def save_cart(cart: CartRequest):
+#     try:
+#         cart_data = cart.dict()
+#         cart_data["processed_at"] = datetime.utcnow()
+        
+#         # Handle status field carefully:
+#         # 1. If status was provided in request, use it
+#         # 2. If not, check if it's a confirmation request (has items but no status)
+#         # 3. Default to "Ordered" if none of the above
+#         if "status" not in cart_data or not cart_data["status"]:
+#             if "items" in cart_data and cart_data["items"]:
+#                 # This is likely a confirmation request from checkout
+#                 cart_data["status"] = "Confirmed"
+#             else:
+#                 # Default status for dashboard
+#                 cart_data["status"] = "Ordered"
+        
+#         result = await carts_collection.insert_one(cart_data)
+#         return {
+#             "status": "success",
+#             "cart_id": str(result.inserted_id),
+#             "message": "Cart saved successfully"
+#         }
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/save-cart")
+# async def save_cart(cart: CartRequest):
+#     try:
+#         cart_data = cart.dict()
+#         cart_data["processed_at"] = datetime.utcnow()
+
+#         # Status handling
+#         if "status" not in cart_data or not cart_data["status"]:
+#             if "items" in cart_data and cart_data["items"]:
+#                 cart_data["status"] = "Confirmed"
+#             else:
+#                 cart_data["status"] = "Ordered"
+
+#         result = await carts_collection.insert_one(cart_data)
+
+#         return {
+#             "status": "success",
+#             "cart_id": str(result.inserted_id),  # 💡 Keep this ID to update Pisa Code later
+#             "message": "Cart saved successfully"
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+@app.post("/save-cart")
+async def save_cart(cart: CartRequest):
+    try:
+        cart_data = cart.dict()
+        cart_data["processed_at"] = datetime.utcnow()
+
+        # 👇 Fetch latest user pisa_code from orders collection
+        latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+        pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+
+        cart_data["user_code"] = pisa_code  # ✅ Attach pisa_code to the cart
+
+        # 🟢 Status handling
+        if "status" not in cart_data or not cart_data["status"]:
+            if "items" in cart_data and cart_data["items"]:
+                cart_data["status"] = "Confirmed"
+            else:
+                cart_data["status"] = "Ordered"
+
+        # 💾 Insert into DB
+        result = await carts_collection.insert_one(cart_data)
+
+        return {
+            "status": "success",
+            "cart_id": str(result.inserted_id),
+            "user_code": pisa_code,
+            "message": "Cart saved successfully"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# @app.post("/save-pisa")
+# async def save_pisa(pisa_code: str, cart_id: str):
+#     try:
+#         result = await carts_collection.update_one(
+#             {"_id": ObjectId(cart_id)},
+#             {"$set": {"pisa_code": pisa_code}}
+#         )
+#         return {
+#             "status": "success",
+#             "message": "Pisa Code added to cart"
+#         }
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# @app.post("/api/payment-method")
+# async def save_payment_method(request: PaymentMethodRequest):
+#     if request.payment_method not in ["prepaid", "cod"]:
+#         raise HTTPException(status_code=400, detail="Invalid payment method")
+#     doc = {
+#         "payment_method": request.payment_method, 
+#         "timestamp": datetime.utcnow()
+#     }
+#     result = await payment_collection.insert_one(doc)
+#     return {"status": "success", "payment_id": str(result.inserted_id)}
+
+# @app.post("/save-cart")
+# async def save_cart(cart: CartRequest):
+#     try:
+#         cart_data = cart.dict()
+#         cart_data["processed_at"] = datetime.utcnow()
+
+#         # ✅ Fetch latest user from customers collection
+#         latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+
+#         if latest_user:
+#             cart_data["user_code"] = latest_user.get("pisa_code") or latest_user.get("user_code")
+#         else:
+#             raise HTTPException(status_code=400, detail="No user found in customers collection")
+
+#         # 🛒 Set cart status
+#         if not cart_data.get("status"):
+#             cart_data["status"] = "Confirmed" if cart_data.get("items") else "Ordered"
+
+#         # ✅ Save cart
+#         result = await carts_collection.insert_one(cart_data)
+
+#         return {
+#             "status": "success",
+#             "cart_id": str(result.inserted_id),
+#             "message": "Cart saved successfully",
+#             "user_code": cart_data["user_code"]
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/payment-method")
+async def save_payment_method(request: PaymentMethodRequest):
+    if request.payment_method not in ["prepaid", "cod"]:
+        raise HTTPException(status_code=400, detail="Invalid payment method")
+
+    # 👉 Get latest pisa_code
+    latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+    pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+
+    doc = {
+        "payment_method": request.payment_method, 
+        "timestamp": datetime.utcnow(),
+        "user_code": pisa_code
+    }
+    result = await payment_collection.insert_one(doc)
+    return {"status": "success", "payment_id": str(result.inserted_id)}
+
+# @app.post("/orders", response_model=OrderInDB, status_code=201)
+# async def add_order(order: Order):
+#     try:
+#         order_dict = order.dict()
+#         order_dict["created_at"] = datetime.utcnow()
+#         order_dict["order_ref_id"] = generate_order_ref_id()
+
+#         # Use pisa_code from user input or latest user
+#         pisa_code = order_dict.get("pisa_code")
+#         if not pisa_code:
+#             latest_user = await orders_collection.find_one(sort=[("_id", -1)])
+#             pisa_code = latest_user.get("pisa_code") or latest_user.get("user_code") if latest_user else None
+#         order_dict["user_code"] = pisa_code
+
+#         latest_cart = await carts_collection.find_one(sort=[('_id', -1)])
+#         latest_payment = await payment_collection.find_one(sort=[('_id', -1)])
+
+#         if latest_cart:
+#             order_dict.update({
+#                 "items": latest_cart.get("items", []),
+#                 "subtotal": latest_cart.get("subtotal"),
+#                 "total": latest_cart.get("total"),
+#                 "savings": latest_cart.get("savings")
+#             })
+#             await carts_collection.update_one(
+#                 {"_id": latest_cart["_id"]},
+#                 {"$set": {
+#                     "order_ref_id": order_dict["order_ref_id"],
+#                     "user_code": pisa_code
+#                 }}
+#             )
+
+#         if latest_payment:
+#             order_dict["payment_method"] = latest_payment.get("payment_method")
+#             await payment_collection.update_one(
+#                 {"_id": latest_payment["_id"]},
+#                 {"$set": {
+#                     "order_ref_id": order_dict["order_ref_id"],
+#                     "user_code": pisa_code
+#                 }}
+#             )
+
+#         result = await orders_collection.insert_one(order_dict)
+#         return {**order_dict, "id": str(result.inserted_id)}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# @app.get("/orders")
+# async def get_orders():
+#     orders = []
+#     async for doc in orders_collection.find():
+#         addresses = doc.get("addresses", [])
+
+#         for address in addresses:
+#             fixed = {
+#                 "id": str(doc.get("_id")),
+#                 "pisa_code": doc.get("user_code", "-"),
+#                 "name": doc.get("name", address.get("name", "-")),
+#                 "phonenumber": doc.get("phonenumber", address.get("phonenumber", "-")),
+#                 "street": address.get("street", "-"),
+#                 "village": address.get("village", "-"),
+#                 "pincode": address.get("pincode", "-"),
+#                 "city": address.get("city", "-"),
+#                 "state": address.get("state", "-")
+#             }
+#             orders.append(fixed)
+#     return orders
+@app.post("/orders", response_model=OrderInDB, status_code=201)
+async def add_order(order: Order):
+    try:
+        order_dict = order.dict()
+        order_dict["created_at"] = datetime.utcnow()
+        order_dict["order_ref_id"] = generate_order_ref_id()
+        
+        # Generate address ID if not provided
+        if "address_id" not in order_dict or not order_dict["address_id"]:
+            if "addresses" in order_dict and order_dict["addresses"]:
+                order_dict["address_id"] = str(ObjectId())  # Assign new ID to address
+                order_dict["addresses"][0]["id"] = order_dict["address_id"]
+        
+        # Insert into DB
+        result = await orders_collection.insert_one(order_dict)
+        
+        # Update cart with order_ref_id
+        latest_cart = await carts_collection.find_one(sort=[('_id', -1)])
+        if latest_cart:
+            await carts_collection.update_one(
+                {"_id": latest_cart["_id"]},
+                {"$set": {
+                    "order_ref_id": order_dict["order_ref_id"],
+                    "status": "Confirmed"
+                }}
+            )
+        
+        # Update payment with order_ref_id
+        latest_payment = await payment_collection.find_one(sort=[('_id', -1)])
+        if latest_payment:
+            await payment_collection.update_one(
+                {"_id": latest_payment["_id"]},
+                {"$set": {
+                    "order_ref_id": order_dict["order_ref_id"]
+                }}
+            )
+        
+        return {**order_dict, "id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/orders")
+async def get_orders():
+    orders = []
+    async for doc in orders_collection.find():
+        # Get the specific address used for this order
+        address_id = doc.get("address_id")
+        address = None
+        
+        # Find the specific address in addresses array
+        if address_id and "addresses" in doc:
+            address = next((a for a in doc["addresses"] if str(a.get("id")) == address_id), None)
+        
+        # Fallback to first address if no specific address found
+        if not address and "addresses" in doc and doc["addresses"]:
+            address = doc["addresses"][0]
+        
+        fixed = {
+            "id": str(doc.get("_id")),
+            "order_ref_id": doc.get("order_ref_id"),
+            "pisa_code": doc.get("pisa_code") or doc.get("user_code", "-"),
+            "name": doc.get("name", address.get("name", "-") if address else "-"),
+            "phonenumber": doc.get("phonenumber", address.get("phonenumber", "-") if address else "-"),
+            "street": address.get("street", "-") if address else "-",
+            "village": address.get("village", "-") if address else "-",
+            "pincode": address.get("pincode", "-") if address else "-",
+            "city": address.get("city", "-") if address else "-",
+            "state": address.get("state", "-") if address else "-",
+            "status": doc.get("status", "Ordered")
+        }
+        orders.append(fixed)
+    return orders
+
+@app.get("/order-details/{order_ref_id}")
+async def get_order_details(order_ref_id: str):
+    # Find the order
+    order = await orders_collection.find_one({"order_ref_id": order_ref_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    # Find the cart
+    cart = await carts_collection.find_one({"order_ref_id": order_ref_id})
+    
+    # Find payment
+    payment = await payment_collection.find_one({"order_ref_id": order_ref_id})
+    
+    # Get the specific address used
+    address_id = order.get("address_id")
+    address = None
+    if address_id and "addresses" in order:
+        address = next((a for a in order["addresses"] if str(a.get("id")) == address_id), None)
+    
+    # Fallback to first address
+    if not address and "addresses" in order and order["addresses"]:
+        address = order["addresses"][0]
+    
+    return {
+        "order": {
+            "id": str(order.get("_id")),
+            "ref_id": order_ref_id,
+            "date": order.get("created_at"),
+            "status": cart.get("status", "Ordered") if cart else "Unknown"
+        },
+        "address": {
+            "name": order.get("name", address.get("name", "-") if address else "-"),
+            "phone": order.get("phonenumber", address.get("phonenumber", "-") if address else "-"),
+            "street": address.get("street", "-") if address else "-",
+            "village": address.get("village", "-") if address else "-",
+            "city": address.get("city", "-") if address else "-",
+            "state": address.get("state", "-") if address else "-",
+            "pincode": address.get("pincode", "-") if address else "-"
+        },
+        "items": cart.get("items", []) if cart else [],
+        "payment": {
+            "method": payment.get("payment_method", "COD") if payment else "COD",
+            "status": "Paid" if payment and payment.get("payment_method") == "prepaid" else "Pending"
+        },
+        "totals": {
+            "subtotal": cart.get("subtotal", "0") if cart else "0",
+            "total": cart.get("total", "0") if cart else "0",
+            "savings": cart.get("savings", "0") if cart else "0"
+        }
+    }    
+
+@app.get("/carts")
+async def get_carts():
+    carts = []
+    async for cart in carts_collection.find():
+        cart_data = {
+            "id": str(cart.get("_id")),
+            "pisa_code": cart.get("user_code", "-"),
+            "items": cart.get("items", []),
+            "status": cart.get("status", "Ordered"),  # Ensure status is included
+            "subtotal": cart.get("subtotal", "0"),
+            "total": cart.get("total", "0"),
+            "savings": cart.get("savings", "0"),
+            "timestamp": cart.get("timestamp"),
+            "processed_at": cart.get("processed_at")
+        }
+        carts.append(cart_data)
+    return carts
+
+@app.get("/payments", response_model=list[dict])
+async def get_payments():
+    payments = []
+    async for payment in payment_collection.find():
+        payments.append(fix_objectids(payment))
+    return payments
+
+@app.post("/carts/update-status")
+async def update_cart_status(data: StatusUpdate):
+    try:
+        result = await carts_collection.update_one(
+            {"_id": ObjectId(data.order_id)},
+            {"$set": {"status": data.new_status}}
+        )
+        if result.matched_count:
+            return {"message": "Status updated successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Cart not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# New endpoints for myorders.html
+@app.get("/my-orders", response_class=HTMLResponse)
+async def my_orders_page():
+    with open("myorders.html") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
+
+
+@app.get("/user-info/{pisa_code}")
+async def get_user_info(pisa_code: str):
+    # Try both pisa_code and user_code fields
+    user = await orders_collection.find_one({
+        "$or": [
+            {"pisa_code": pisa_code},
+            {"user_code": pisa_code}
+        ]
+    })
+    
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="We couldn't find your account. Please check your PISA Code."
+        )
+    
+    # Get name from either top level or first address
+    name = user.get("name")
+    if not name and "addresses" in user and user["addresses"]:
+        name = user["addresses"][0].get("name")
+    
+    # Build address from available fields
+    address = format_user_address(user)
+    
+    return {
+        "name": name or "Customer",
+        "address": address or "Address not available"
+    }
+
+def format_user_address(user):
+    """Helper to format address from either direct fields or addresses array"""
+    if "street" in user:  # New format
+        return ", ".join(filter(None, [
+            user.get("street"),
+            user.get("village"),
+            user.get("city"),
+            user.get("state"),
+            str(user.get("pincode", ""))
+        ]))
+    elif "addresses" in user and user["addresses"]:  # Old format
+        addr = user["addresses"][0]
+        return ", ".join(filter(None, [
+            addr.get("street"),
+            addr.get("village"),
+            addr.get("city"),
+            addr.get("state"),
+            str(addr.get("pincode", ""))
+        ]))
+    return None
+
+@app.get("/my-orders/{pisa_code}")
+async def get_my_orders(pisa_code: str):
+    # Find user by either pisa_code or user_code
+    user = await orders_collection.find_one({
+        "$or": [
+            {"pisa_code": pisa_code},
+            {"user_code": pisa_code}
+        ]
+    })
+    
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found. Please check your PISA Code."
+        )
+    
+    orders = []
+    
+    # Find all orders for this user
+    async for order in orders_collection.find({
+        "$or": [
+            {"pisa_code": pisa_code},
+            {"user_code": pisa_code}
+        ]
+    }):
+        order_ref_id = order.get("order_ref_id")
+        if not order_ref_id:
+            continue
+            
+        cart = await carts_collection.find_one({"order_ref_id": order_ref_id})
+        if not cart:
+            continue
+            
+        orders.append({
+            "order_id": str(order.get("_id")),
+            "order_date": order.get("created_at", datetime.utcnow()),
+            "items": cart.get("items", []),
+            "total": cart.get("total", "0"),
+            "status": cart.get("status", "Processing")
+        })
+    
+    # Sort by date (newest first)
+    orders.sort(key=lambda x: x["order_date"], reverse=True)
+    
+    # Build address
+    address_parts = []
+    if all(field in user for field in ["street", "city", "state", "pincode"]):
+        address_parts.extend([
+            user.get("street", ""),
+            user.get("village", ""),
+            user.get("city", ""),
+            user.get("state", ""),
+            str(user.get("pincode", ""))
+        ])
+    elif "addresses" in user and user["addresses"]:
+        address = user["addresses"][0]
+        address_parts.extend([
+            address.get("street", ""),
+            address.get("village", ""),
+            address.get("city", ""),
+            address.get("state", ""),
+            str(address.get("pincode", ""))
+        ])
+    
+    return {
+        "name": user.get("name", "Customer"),
+        "address": ", ".join(filter(None, address_parts)) or "Address not available",
+        "orders": orders
+    }
+
+@app.post("/create-user")
+async def create_user(address: Address):
+    while True:
+        user_code = str(random.randint(100000, 999999))
+        exists = await orders_collection.find_one({"user_code": user_code})
+        if not exists:
+            break
+
+    user_doc = {
+        "user_code": user_code,
+        "addresses": [address.dict()],
+        "created_at": datetime.utcnow()
+    }
+    await orders_collection.insert_one(user_doc)
+    return {"detail": "User created", "user_code": user_code}
+
+@app.post("/create_user")
+async def create_user(data: dict):
+    pisa_code = str(random.randint(100000, 999999))
+    while await orders_collection.find_one({"pisa_code": pisa_code}):
+        pisa_code = str(random.randint(100000, 999999))
+    data["pisa_code"] = pisa_code
+    data["orders"] = []
+    data["created_at"] = datetime.utcnow()
+    await orders_collection.insert_one(data)
+    return {"pisa_code": pisa_code}
+
+@app.get("/get-user/{user_code}")
+async def get_user(user_code: str):
+    user = await orders_collection.find_one({"user_code": user_code})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "user_code": user["user_code"],
+        "addresses": user.get("addresses", [])
+    }
+
+@app.post("/add-address/{user_code}")
+async def add_address(user_code: str, address: Address):
+    result = await orders_collection.update_one(
+        {"user_code": user_code},
+        {"$push": {"addresses": address.dict()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"detail": "Address added"}
+
+
+
+
+
+
+
+        /* .offer-banner {
+            background: linear-gradient(90deg, #1b5e20, #43a047);
+            color: white; 
+            text-align: center; 
+            padding: 10px 15px;
+            font-size: 16px; 
+            font-weight: bold;
+            animation: slide-in 1s ease-in-out;
+        }
+        
+        @keyframes slide-in {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .hero {
+            text-align: center; 
+            padding: 60px 20px; 
+            background: #f2fbf5;
+        }
+        
+        .hero h1 {
+            font-size: 34px; 
+            font-weight: bold; 
+            color: #2e7d32;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        
+        .hero .highlight { 
+            color: #1b5e20; 
+        }
+        
+        .hero p { 
+            font-size: 18px; 
+            margin: 10px auto 20px; 
+            max-width: 600px;
+        }
+        
+        .cta {
+            background: #43a047; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none;
+            font-size: 16px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        
+        .cta:hover { 
+            background: #2e7d32; 
+        }
+        
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        
+        .badges span {
+            background: #e8f5e9; 
+            color: #2e7d32; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            white-space: nowrap;
+        }
+        
+        .scroll-down {
+            margin-top: 20px; 
+            font-size: 24px; 
+            animation: bounce 1.5s infinite;
+            color: #2e7d32;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+    <!-- <div class="offer-banner">
+        💥 Custom Combo Packs: Mix & Match Top Brands as per your needs – Save More, Get More! 🚚💨
+    </div>
+
+    <section class="hero">
+        <h1>Build Your Own Combo with <span class="highlight">Top-Selling Products!</span></h1>
+        <p>✨ We resell trusted brands & let You create packs that suit your lifestyle and budget.</p>
+        <a href="#emptyBoxes" style="background: #2e7d32;
+            color: #fff;
+            padding: 8px 18px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            display: inline-block;
+            transition: background 0.3s;">Start Picking Your Combo</a>
+        <div class="badges">
+            <span>🔥 Flexible Choices</span>
+            <span>🚚 Pan India Delivery</span>
+            <span>💰 Extra Savings on Custom Packs</span>
+            <span>🎁 Everything you need in one Pack</span>
+        </div>
+        <div class="scroll-down">⬇</div>
+    </section> -->
+    
+    
+
+
+<!-- <script>
+  // Function to track address usage
+  // function trackAddressUsage(addressData, type = 'New Address', userCode = null) {
+  //   // Get existing history or initialize empty array
+  //   const history = JSON.parse(localStorage.getItem('pisaAddressHistory')) || [];
+    
+  //   // Add timestamp and type to the address data
+  //   const trackedData = {
+  //     ...addressData,
+  //     timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+  //     type: type,
+  //     userCode: userCode
+  //   };
+    
+  //   // Add to beginning of array (most recent first)
+  //   history.unshift(trackedData);
+    
+  //   // Save back to localStorage
+  //   localStorage.setItem('pisaAddressHistory', JSON.stringify(history));
+  // }
+  async function trackAddressUsage(addressData, type = 'New Address', userCode = null) {
+    console.log("Submitting address:", {addressData, type, userCode});
+    
+    try {
+        const payload = {
+            ...addressData,
+            type: type,
+            userCode: userCode,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log("Full payload:", payload);
+        
+        const response = await fetch('/api/record-address', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log("Success:", result);
+        
+    } catch (error) {
+        console.error("Full error:", error);
+        // Fallback to localStorage
+        console.warn("Falling back to localStorage");
+        const history = JSON.parse(localStorage.getItem('pisaAddressHistory')) || [];
+        history.unshift(payload);
+        localStorage.setItem('pisaAddressHistory', JSON.stringify(history));
+    }
+}
+
+  // Auto-fill city/state from pincode
+  document.getElementById("pincode").addEventListener("blur", function () {
+    const pin = this.value;
+    if (pin.length === 6) {
+      fetch(`https://api.postalpincode.in/pincode/${pin}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data[0].Status === "Success") {
+            const office = data[0].PostOffice[0];
+            document.getElementById("city").value = office.District;
+            document.getElementById("state").value = office.State;
+          } else {
+            alert("Invalid Pincode");
+          }
+        });
+    }
+  });
+  
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const cartItemsContainer = document.getElementById('cartItems');
+  const subtotalEl = document.getElementById('subtotal');
+  const totalEl = document.getElementById('total');
+  const savingsEl = document.getElementById('savings');
+  const summary = document.getElementById('summary');
+  const emptyCart = document.getElementById('emptyCart');
+
+  function displayCart() {
+    cartItemsContainer.innerHTML = '';
+    if (cart.length === 0) {
+      emptyCart.style.display = 'block';
+      summary.style.display = 'none';
+    } else {
+      emptyCart.style.display = 'none';
+      let subtotal = 0;
+
+      cart.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span>${item.name} × ${item.quantity || 1}</span>
+          <span>₹${item.price * (item.quantity || 1)}</span>
+        `;
+        cartItemsContainer.appendChild(div);
+        subtotal += item.price * (item.quantity || 1);
+      });
+
+      const savings = Math.floor(subtotal * 0.1);
+      subtotalEl.textContent = `₹${subtotal}`;
+      savingsEl.textContent = `₹${savings}`;
+      totalEl.textContent = `₹${subtotal - savings}`;
+      summary.style.display = 'block';
+    }
+  }
+
+  displayCart();
+
+  const newUserBtn = document.getElementById("newUserBtn");
+  const regularUserBtn = document.getElementById("regularUserBtn");
+  const addressForm = document.getElementById("addressForm");
+  const mobileInput = document.getElementById("mobileInput");
+  const userCodeMsg = document.getElementById("userCodeMsg");
+  const addressesContainer = document.getElementById("addressesContainer");
+  const submitBtn = document.getElementById("submitBtn");
+  const submitText = document.getElementById("submitText");
+  const fetchBtn = document.getElementById("fetchBtn");
+  const fetchText = document.getElementById("fetchText");
+  const tapMessage = document.getElementById("tapMessage");
+
+  newUserBtn.addEventListener("click", () => {
+    addressForm.style.display = "flex";
+    mobileInput.style.display = "none";
+    addressesContainer.innerHTML = "";
+    userCodeMsg.style.display = "none";
+    tapMessage.style.display = "none";
+    regularUserBtn.classList.remove("btn");
+    regularUserBtn.classList.add("btn-outline");
+    newUserBtn.classList.remove("btn-outline");
+    newUserBtn.classList.add("btn");
+  });
+
+  regularUserBtn.addEventListener("click", () => {
+    mobileInput.style.display = "flex";
+    addressForm.style.display = "none";
+    addressesContainer.innerHTML = "";
+    userCodeMsg.style.display = "none";
+    tapMessage.style.display = "none";
+    newUserBtn.classList.remove("btn");
+    newUserBtn.classList.add("btn-outline");
+    regularUserBtn.classList.remove("btn-outline");
+    regularUserBtn.classList.add("btn");
+  });
+
+  document.getElementById("phonenumber").addEventListener("input", function (e) {
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+  });
+
+  document.getElementById("pincode").addEventListener("input", function (e) {
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+  });
+
+  async function submitNewUser() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phonenumber").value.trim();
+    const street = document.getElementById("street").value.trim();
+    const village = document.getElementById("village").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim();
+
+    if (!name || !phone || !street || !village || !pincode || !city || !state) {
+      showMessage("Please fill all fields", "error");
+      return;
+    }
+
+    if (phone.length !== 10) {
+      showMessage("Please enter a valid 10-digit phone number", "error");
+      return;
+    }
+
+    if (pincode.length !== 6) {
+      showMessage("Please enter a valid 6-digit pincode", "error");
+      return;
+    }
+
+    const data = {
+      name,
+      phonenumber: parseInt(phone),
+      street,
+      village,
+      pincode: parseInt(pincode),
+      city,
+      state,
+      created_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+    };
+
+    submitBtn.disabled = true;
+    submitText.textContent = "Processing...";
+    submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+    try {
+      const res = await fetch("http://localhost:8000/create-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        showMessage(`✅ Your PISA code: ${result.user_code}. Redirecting to payment...`, "success");
+        localStorage.setItem('userCode', result.user_code);
+        localStorage.setItem('selectedAddress', JSON.stringify(data));
+        localStorage.setItem('pisaCode', result.user_code);
+        localStorage.setItem('pisaCodeTime', Date.now());
+        trackAddressUsage(data, 'New Address', result.user_code);
+        localStorage.setItem('alreadyConfirmedAddress', 'true');
+        setTimeout(() => window.location.href = "price.html", 2000);
+      } else {
+        showMessage(result.detail || "Error creating user. Please try again.", "error");
+      }
+    } catch (error) {
+      showMessage("Network error. Please try again.", "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = "Save Address";
+      submitBtn.querySelector('.loading')?.remove();
+    }
+  }
+
+  async function updateCartWithPisaCode(pisaCode) {
+    const cartId = localStorage.getItem("cart_id");
+    if (!cartId) return;
+
+    try {
+      await fetch(`/update-cart/${cartId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pisa_code: pisaCode })
+      });
+    } catch (err) {
+      console.error("Error updating cart with pisa_code:", err);
+    }
+  }
+
+  const pisaCode = localStorage.getItem("userCode");
+  if (pisaCode) updateCartWithPisaCode(pisaCode);
+
+  async function fetchAddresses() {
+    const code = document.getElementById("userCodeInput").value.trim();
+
+    if (!code) {
+      showMessage("Please enter your PISA code", "error");
+      return;
+    }
+
+    fetchBtn.disabled = true;
+    fetchText.textContent = "Fetching...";
+    fetchBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+    try {
+      const res = await fetch(`http://localhost:8000/get-user/${code}`);
+      const result = await res.json();
+
+      if (res.ok) {
+        displayAddresses(result.addresses, code);
+      } else {
+        showMessage(result.detail || "Error fetching addresses. Please check your code.", "error");
+      }
+    } catch (error) {
+      showMessage("Network error. Please try again.", "error");
+    } finally {
+      fetchBtn.disabled = false;
+      fetchText.textContent = "Get My Addresses";
+      fetchBtn.querySelector('.loading')?.remove();
+    }
+  }
+
+  function displayAddresses(addresses, userCode) {
+    tapMessage.style.display = "none";
+    
+    if (!addresses || addresses.length === 0) {
+      addressesContainer.innerHTML = '<div class="message">No addresses found for this code.</div>';
+      return;
+    }
+
+    addressesContainer.innerHTML = addresses.map((addr, index) => `
+      <div class="address-card" onclick="selectAddress(this, '${userCode}', ${index})">
+        <p class="name">${addr.name} • ${addr.phonenumber}</p>
+        <p>${addr.street}, ${addr.village}</p>
+        <p>${addr.city}, ${addr.state} - ${addr.pincode}</p>
+        <div class="action-buttons">
+          <button class="btn" onclick="continueWithThis('${userCode}', ${index}); event.stopPropagation();">
+            <i class="fas fa-check"></i> Use This
+          </button>
+          <button class="btn btn-outline" onclick="showAddNewAddress('${userCode}'); event.stopPropagation();">
+            <i class="fas fa-plus"></i> Add New
+          </button>
+        </div>
+      </div>
+    `).join("");
+    
+    tapMessage.style.display = "block";
+  }
+
+  function selectAddress(card, userCode, index) {
+    document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.querySelectorAll('.action-buttons').forEach(btn => btn.style.display = 'none');
+    card.querySelector('.action-buttons').style.display = 'flex';
+  }
+
+  function continueWithThis(userCode, index) {
+    showMessage("Taking you to your PISA pack...", "success");
+    
+    fetch(`http://localhost:8000/get-user/${userCode}`)
+      .then(res => res.json())
+      .then(result => {
+        if (result.addresses && result.addresses[index]) {
+          localStorage.setItem('userCode', userCode);
+          localStorage.setItem('selectedAddress', JSON.stringify(result.addresses[index]));
+          trackAddressUsage(result.addresses[index], 'Selected Address', userCode);
+          localStorage.setItem('alreadyConfirmedAddress', 'true');
+          setTimeout(() => window.location.href = "price.html", 1500);
+        }
+      })
+      .catch(() => {
+        showMessage("Error selecting address. Please try again.", "error");
+      });
+  }
+
+  function showAddNewAddress(userCode) {
+    addressForm.style.display = "flex";
+    mobileInput.style.display = "none";
+    addressesContainer.innerHTML = "";
+    tapMessage.style.display = "none";
+
+    document.getElementById("name").value = "";
+    document.getElementById("phonenumber").value = "";
+    document.getElementById("street").value = "";
+    document.getElementById("village").value = "";
+    document.getElementById("pincode").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("state").value = "";
+
+    submitBtn.onclick = async () => {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phonenumber").value.trim();
+      const street = document.getElementById("street").value.trim();
+      const village = document.getElementById("village").value.trim();
+      const pincode = document.getElementById("pincode").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const state = document.getElementById("state").value.trim();
+
+      if (!name || !phone || !street || !village || !pincode || !city || !state) {
+        showMessage("Please fill all fields", "error");
+        return;
+      }
+
+      if (phone.length !== 10) {
+        showMessage("Please enter a valid 10-digit phone number", "error");
+        return;
+      }
+
+      if (pincode.length !== 6) {
+        showMessage("Please enter a valid 6-digit pincode", "error");
+        return;
+      }
+
+      const data = {
+        name,
+        phonenumber: parseInt(phone),
+        street,
+        village,
+        pincode: parseInt(pincode),
+        city,
+        state,
+        added_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+      };
+
+      submitBtn.disabled = true;
+      submitText.textContent = "Adding...";
+      submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+      try {
+        const res = await fetch(`http://localhost:8000/add-address/${userCode}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          showMessage("New address added successfully!", "success");
+          trackAddressUsage(data, 'Added Address', userCode);
+          setTimeout(() => {
+            addressForm.style.display = "none";
+            fetchAddresses();
+          }, 1500);
+        } else {
+          showMessage(result.detail || "Error adding address", "error");
+        }
+      } catch (error) {
+        showMessage("Network error. Please try again.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = "Save Address";
+        submitBtn.querySelector('.loading')?.remove();
+      }
+    };
+  }
+
+  function showMessage(text, type) {
+    userCodeMsg.textContent = text;
+    userCodeMsg.className = `message ${type}`;
+    userCodeMsg.style.display = "block";
+    setTimeout(() => { userCodeMsg.style.display = "none"; }, 5000);
+  }
+
+  userCodeMsg.addEventListener("click", () => {
+    userCodeMsg.style.display = "none";
+  });
+
+  (function () {
+    const savedCode = localStorage.getItem("pisaCode");
+    const savedTime = localStorage.getItem("pisaCodeTime");
+    const now = new Date().getTime();
+    if (savedCode && savedTime && (now - savedTime) < 30 * 24 * 60 * 60 * 1000) {
+      const userCodeInput = document.getElementById("userCodeInput");
+      if (userCodeInput) {
+        userCodeInput.value = savedCode;
+      }
+      fetchAddresses();
+    }
+  })();
+</script> -->    

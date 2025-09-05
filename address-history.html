@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PISA Address History</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --primary-light: #e8f5e9;
+    --secondary: #ff9800;
+    --danger: #d32f2f;
+    --success: #388e3c;
+    --text: #333;
+    --text-light: #666;
+    --border: #e0e0e0;
+    --bg: #f9f9f9;
+    --card-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    --transition: all 0.25s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 10px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: var(--card-shadow);
+  }
+
+  h1 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    font-size: 0.85rem;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+
+  .btn-danger {
+    background-color: var(--danger);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #b71c1c;
+  }
+
+  .btn-success {
+    background-color: var(--success);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background-color: #2e7d32;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+  }
+
+  th, td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  th {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+
+  tr:hover {
+    background-color: rgba(46, 125, 50, 0.03);
+  }
+
+  .timestamp {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .action-btn {
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 15px;
+    color: var(--text-light);
+  }
+
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: var(--border);
+  }
+
+  .empty-state h3 {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 1.1rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9rem;
+  }
+
+  /* Responsive table styles */
+  @media (max-width: 992px) {
+    th, td {
+      padding: 8px 6px;
+      font-size: 0.8rem;
+    }
+    
+    .action-btn {
+      min-width: 50px;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 12px;
+    }
+    
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+    
+    .toolbar {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    body {
+      padding: 8px;
+    }
+    
+    .container {
+      padding: 10px;
+    }
+    
+    h1 {
+      font-size: 1.2rem;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+    
+    table {
+      display: block;
+    }
+    
+    th, td {
+      padding: 8px 4px;
+      font-size: 0.75rem;
+    }
+    
+    .timestamp {
+      font-size: 0.7rem;
+    }
+    
+    .actions {
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .action-btn {
+      width: 100%;
+    }
+  }
+
+  /* Stacked table for very small screens */
+  @media (max-width: 480px) {
+    table {
+      display: block;
+      width: 100%;
+    }
+    
+    thead {
+      display: none;
+    }
+    
+    tbody {
+      display: block;
+      width: 100%;
+    }
+    
+    tr {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      position: relative;
+    }
+    
+    td {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 6px 4px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    td:last-child {
+      border-bottom: none;
+      justify-content: flex-end;
+    }
+    
+    td::before {
+      content: attr(data-label);
+      font-weight: 500;
+      color: var(--primary-dark);
+      margin-right: 10px;
+      flex: 0 0 100px;
+      font-size: 0.75rem;
+    }
+    
+    .actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+    
+    .action-btn {
+      min-width: auto;
+      width: auto;
+    }
+    
+    .empty-state i {
+      font-size: 2rem;
+    }
+    
+    .empty-state h3 {
+      font-size: 1rem;
+    }
+    
+    .empty-state p {
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Animation for restored items */
+  @keyframes highlight {
+    0% { background-color: rgba(46, 125, 50, 0.1); }
+    100% { background-color: transparent; }
+  }
+
+  .highlight {
+    animation: highlight 2s ease-out;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  
+  <div class="toolbar">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="refreshData()">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+      <button class="btn btn-danger" onclick="clearData()">
+        <i class="fas fa-trash-alt"></i> Clear All
+      </button>
+    </div>
+    <button class="btn btn-success" onclick="restoreLastDeleted()" id="restoreBtn" disabled>
+      <i class="fas fa-undo"></i> Restore
+    </button>
+  </div>
+  
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Timestamp</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Street</th>
+          <th>Village/Locality</th>
+          <th>Pincode</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Type</th>
+          <th>PISA Code</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="addressData">
+        <!-- Data will be inserted here -->
+      </tbody>
+    </table>
+    <div id="emptyMessage" class="empty-state" style="display:none;">
+      <i class="fas fa-inbox"></i>
+      <h3>No Address History Found</h3>
+      <p>Please use the pisa2.html page to add addresses</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:8000'; // UPDATE THIS IF YOUR PORT IS DIFFERENT
+  let lastDeletedItem = null;
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadAddressHistory();
+  });
+
+  async function loadAddressHistory() {
+      try {
+          const response = await fetch(`${API_BASE}/api/get-address-history`);
+          
+          if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+          }
+          
+          const addresses = await response.json();
+          renderAddresses(addresses);
+          
+      } catch (error) {
+          showError(`Failed to load addresses: ${error.message}`);
+          console.error("Full error:", error);
+      }
+  }
+
+  function renderAddresses(addresses) {
+      const tbody = document.getElementById('addressData');
+      tbody.innerHTML = '';
+      
+      if (addresses.length === 0) {
+          document.getElementById('emptyMessage').style.display = 'block';
+          document.getElementById('restoreBtn').disabled = true;
+          return;
+      } else {
+          document.getElementById('emptyMessage').style.display = 'none';
+      }
+
+      addresses.forEach((addr, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${index + 1}</td>
+              <td class="timestamp">${new Date(addr.timestamp).toLocaleString()}</td>
+              <td>${addr.name || 'N/A'}</td>
+              <td>${addr.phonenumber || 'N/A'}</td>
+              <td>${addr.street || 'N/A'}</td>
+              <td>${addr.village || 'N/A'}</td>
+              <td>${addr.pincode || 'N/A'}</td>
+              <td>${addr.city || 'N/A'}</td>
+              <td>${addr.state || 'N/A'}</td>
+              <td>${addr.type || 'N/A'}</td>
+              <td>${addr.userCode || 'N/A'}</td>
+              <td class="actions">
+                <button class="btn btn-danger action-btn" onclick="deleteAddress('${addr.id}')">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </td>
+          `;
+          tbody.appendChild(row);
+      });
+  }
+
+  function showError(message) {
+      const errorDiv = document.getElementById('emptyMessage');
+      errorDiv.innerHTML = `
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Connection Error</h3>
+          <p>${message}</p>
+          <button onclick="location.reload()">Retry</button>
+          <p><small>Ensure backend is running at ${API_BASE}</small></p>
+      `;
+      errorDiv.style.display = 'block';
+  }
+
+  async function deleteAddress(id) {
+      try {
+          const response = await fetch(`${API_BASE}/api/delete-address/${id}`, {
+              method: 'DELETE'
+          });
+          
+          if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+          }
+          
+          // Store the deleted item for possible restoration
+          const result = await response.json();
+          lastDeletedItem = result.deletedItem;
+          document.getElementById('restoreBtn').disabled = false;
+          
+          // Reload the data
+          await loadAddressHistory();
+          
+      } catch (error) {
+          showError(`Failed to delete address: ${error.message}`);
+          console.error("Full error:", error);
+      }
+  }
+
+  async function clearData() {
+      if (!confirm('Are you sure you want to delete ALL address history? This cannot be undone.')) {
+          return;
+      }
+      
+      try {
+          const response = await fetch(`${API_BASE}/api/clear-address-history`, {
+              method: 'DELETE'
+          });
+          
+          if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+          }
+          
+          // Clear the last deleted item since we've cleared everything
+          lastDeletedItem = null;
+          document.getElementById('restoreBtn').disabled = true;
+          
+          // Reload the data
+          await loadAddressHistory();
+          
+      } catch (error) {
+          showError(`Failed to clear addresses: ${error.message}`);
+          console.error("Full error:", error);
+      }
+  }
+
+  async function restoreLastDeleted() {
+      if (!lastDeletedItem) return;
+      
+      try {
+          const response = await fetch(`${API_BASE}/api/restore-address`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(lastDeletedItem)
+          });
+          
+          if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+          }
+          
+          // Clear the last deleted item
+          lastDeletedItem = null;
+          document.getElementById('restoreBtn').disabled = true;
+          
+          // Reload the data
+          await loadAddressHistory();
+          
+          // Highlight the restored row
+          const rows = document.querySelectorAll('#addressData tr');
+          if (rows.length > 0) {
+              rows[rows.length - 1].classList.add('highlight');
+          }
+          
+      } catch (error) {
+          showError(`Failed to restore address: ${error.message}`);
+          console.error("Full error:", error);
+      }
+  }
+
+  async function refreshData() {
+      await loadAddressHistory();
+  }
+</script>
+</body>
+</html>

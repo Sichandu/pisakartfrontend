@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PisaKart cancellation policy - Cancel orders within 1 hour of placement. Easy cancellation through dashboard or customer support.">
+  <title>Cancellation Policy | PisaKart Order Management</title>
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #4caf50;
+      --text-color: #333;
+      --light-bg: #f9f9f9;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --warning-color: #ff9800;
+      --error-color: #f44336;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--light-bg);
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    
+    .policy-highlight {
+      background-color: #e8f5e9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+      text-align: center;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .policy-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .policy-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .policy-card h2 {
+      color: var(--primary-color);
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .policy-icon {
+      font-size: 1.5rem;
+    }
+    
+    .notice {
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    
+    .notice-warning {
+      background-color: #fff8e1;
+      border-left: 4px solid var(--warning-color);
+    }
+    
+    .notice-important {
+      background-color: #ffebee;
+      border-left: 4px solid var(--error-color);
+    }
+    
+    .steps {
+      counter-reset: step;
+      margin: 2rem 0;
+    }
+    
+    .step {
+      position: relative;
+      padding-left: 3rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .faq {
+      margin: 3rem 0;
+    }
+    
+    .faq h2 {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+    
+    .faq-item {
+      margin-bottom: 1.5rem;
+    }
+    
+    .faq-question {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .policy-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Order Cancellation Policy</h1>
+      <p>Need to cancel an order? Here's how it works</p>
+    </div>
+  </header>
+  
+  <main class="container">
+    <div class="policy-highlight">
+      <h2><i class="fas fa-clock"></i> 1-Hour Cancellation Window</h2>
+      <p>You can cancel your order within <strong>1 hour</strong> of placing it. After this window, cancellations may not be possible if processing has begun.</p>
+    </div>
+    
+    <div class="policy-cards">
+      <div class="policy-card">
+        <h2><i class="fas fa-check-circle policy-icon"></i> When You Can Cancel</h2>
+        <ul>
+          <li>Within 1 hour of order placement</li>
+          <li>Before your order enters "shipped" status</li>
+          <li>Before shipment preparation begins</li>
+        </ul>
+      </div>
+      
+      <div class="policy-card">
+        <h2><i class="fas fa-times-circle policy-icon"></i> When You Can't Cancel</h2>
+        <ul>
+          <li>After 1 hour from order placement</li>
+          <li>Once order status changes to "shipped"</li>
+          <li>After shipment has been dispatched</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="notice notice-warning">
+      <p><strong>Note:</strong> For orders paid by Cash on Delivery (COD), cancellations must be made within 30 minutes of order placement due to faster processing times.</p>
+    </div>
+    
+    <div class="steps">
+      <h2>How to Cancel Your Order</h2>
+      
+      <div class="step">
+        <h3>Through Your Pisa code</h3>
+        <p>Go to "My Orders" in your PisaKart account, select the order you want to cancel, and click "Cancel Order."</p>
+      </div>
+      
+      <div class="step">
+        <h3>Via Customer Support</h3>
+        <p>Contact our support team at <strong>pisakarthelp@gmail.com</strong> or WhatsApp <strong>+91-8185843878</strong> for immediate assistance with cancellation.</p>
+      </div>
+      
+      <div class="step">
+        <h3>Confirmation</h3>
+        <p>You'll receive WhatsApp or SMS confirmation once your cancellation is processed. Refunds (if applicable) will be initiated immediately.</p>
+      </div>
+    </div>
+    
+    <div class="notice notice-important">
+      <p><strong>Important:</strong> If your order has already shipped but you wish to return it, please see our <a href="/return.html">Return Policy</a> instead.</p>
+    </div>
+    
+    <div class="faq">
+      <h2>Cancellation FAQs</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">What if I miss the 1-hour cancellation window?</div>
+        <p>If your order is already being processed, you may not be able to cancel it. In this case, you can refuse delivery when it arrives or initiate a return after receiving the package.</p>
+      </div>
+      
+      <div class="faq-item">
+        <div class="faq-question">How long does the refund take after cancellation?</div>
+        <p>Refunds are processed within 1 hour of cancellation. The time to reflect in your account is instant (typically 15-30 minutes).</p>
+      </div>
+      
+      <div class="faq-item">
+        <div class="faq-question">Can I cancel part of my order?</div>
+        <p>Currently, we only support full order cancellations. If you need to modify your order, please cancel and place a new order with the correct items.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

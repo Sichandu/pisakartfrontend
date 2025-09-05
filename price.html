@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart | Pisa Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #2e7d32; /* PisaKart Green */
+      --primary-dark: #1b5e20;
+      --light-bg: #f0f7f0;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--white);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #pageHeader {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #pageHeader h1 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+    }
+
+    .image-container {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+
+    .cart-item-img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .cart-items {
+      margin-top: 30px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .item-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .remove-btn {
+      color: #ff4444;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+
+    .price-summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+
+    .strategy {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+    button a{
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      color: white;
+      background-color: #2e7d32;
+    }
+
+    .total-row {
+      border-top: 2px solid var(--light-bg);
+      padding-top: 15px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      display: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--light-bg);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: white;
+      color: #999;
+      border-color: #999;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+    }
+
+    .min-items-notice {
+      text-align: center;
+      color: #ff4444;
+      margin: 15px 0 5px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .add-more-container {
+      text-align: center;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .add-more-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .add-more-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ✅ Message Card */
+    .popup-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--white);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 25px 30px;
+      border-radius: 16px;
+      z-index: 1000;
+      display: none;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .popup-card p {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .popup-card button {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .popup-card button:hover {
+      background: var(--primary-dark);
+    }
+    .strategy {
+      text-align: center;
+      justify-content: center;
+      margin: 12px 0;
+    }
+
+    .more button {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      background-color: var(--primary);
+      border: none;
+      font-size: 1rem;
+      margin: 0 5px;
+    }
+
+    .more button a {
+      color: white;
+      text-decoration: none;
+    }
+    .more button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ✅ Header Section -->
+    <div id="pageHeader">
+      <h1>CHECK YOUR PISA PACK</h1>
+      <p class="subtitle">Review Your Pack - You Can Replace and Remove Items</p>
+    </div>
+
+    <div class="image-container" id="imageContainer"></div>
+
+    <div class="cart-items" id="cartContainer">
+      <div class="empty-cart" id="emptyCart">
+        <p>Your cart is empty</p>
+      </div>
+    </div>
+
+    <div class="price-summary" id="summaryCard" style="display:none">
+      <div class="price-row">
+        <span>Subtotal</span>
+        <span id="subtotal">₹0</span>
+      </div>
+      <div class="price-row">
+        <span>Shipping</span>
+        <span>FREE</span>
+      </div>
+
+      <div class="price-row total-row">
+        <span>Total</span>
+        <span id="totalPrice">₹0</span>
+      </div>
+      <div class="strategy">
+        <div class="more">
+          <!-- <button id="shopMoreBtn"><a href="index.html#product-container">Shop More</a></button> -->
+           <button id="shopMoreBtn">Shop More</button>
+           <script>
+  document.getElementById("shopMoreBtn").addEventListener("click", () => {
+    localStorage.setItem("backFromPrice", "true");
+    window.location.href = "index.html#product-container";
+  });
+</script>
+
+          <button id="requestMoreBtn" style="display:none;">Request More Products</button>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-secondary" id="confirmBoxBtn" disabled>Confirm Box</button>
+        <button class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+      </div>
+
+      <p class="min-items-notice" id="minItemsNotice">
+        You need at least 3 products in your cart to confirm your box
+      </p>
+      <div class="add-more-container" id="addMoreContainer">
+        <!-- <button class="add-more-btn" id="addMoreBtn">Add More Products</button> -->
+         <button class="add-more-btn" id="addMoreBtn">Add More Products</button>
+         <script>
+  document.getElementById("addMoreBtn").addEventListener("click", () => {
+    localStorage.setItem("backFromPrice", "true");
+    window.location.href = "index.html#emptyBoxes";
+  });
+</script>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Popup Card Message -->
+  <div class="popup-card" id="popupMessage">
+    <p>Pick minimum 3 products to Pack your PISA Pack</p>
+    <button id="pickNowBtn">Pick Now</button>
+  </div>
+
+<script>
+  // const baseURL = "https://pisakart-backend.onrender.com";
+  const baseURL = "http://127.0.0.1:8000";
+
+  const cartContainer = document.getElementById('cartContainer');
+  const emptyCart = document.getElementById('emptyCart');
+  const summaryCard = document.getElementById('summaryCard');
+  const imageContainer = document.getElementById('imageContainer');
+  const confirmBoxBtn = document.getElementById('confirmBoxBtn');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const minItemsNotice = document.getElementById('minItemsNotice');
+  const addMoreContainer = document.getElementById('addMoreContainer');
+  const addMoreBtn = document.getElementById('addMoreBtn');
+  const popup = document.getElementById('popupMessage');
+  const pickNowBtn = document.getElementById('pickNowBtn');
+  const pageHeader = document.getElementById('pageHeader');
+  const shopMoreBtn = document.getElementById('shopMoreBtn');
+  const requestMoreBtn = document.getElementById('requestMoreBtn');
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let boxConfirmed = false; // flag to lock UI after confirm
+
+  if (!localStorage.getItem('sharedOrderId')) {
+    const sharedId = Date.now().toString() + Math.random().toString(16).slice(2);
+    localStorage.setItem('sharedOrderId', sharedId);
+  }
+
+  function updateCartDisplay() {
+  if (boxConfirmed) return; // don't allow updates after confirm
+
+  cartContainer.innerHTML = '';
+  imageContainer.innerHTML = '';
+
+  if (cart.length === 0) {
+    emptyCart.style.display = 'block';
+    summaryCard.style.display = 'none';
+    pageHeader.style.display = 'none';
+    popup.style.display = 'block';
+    return;
+  }
+
+  emptyCart.style.display = 'none';
+  summaryCard.style.display = 'block';
+  pageHeader.style.display = 'block';
+  popup.style.display = 'none';
+
+  let subtotal = 0;
+
+  cart.forEach((item, index) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'cart-item';
+    itemEl.innerHTML = `
+      <div class="item-info">
+        <img src="${item.image}" alt="${item.name}" class="item-img">
+        <span>${item.name}</span>
+      </div>
+      <div>
+        <span>₹${item.price}</span>
+        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+      </div>
+    `;
+    cartContainer.appendChild(itemEl);
+
+    const imgEl = document.createElement('img');
+    imgEl.src = item.image;
+    imgEl.alt = item.name;
+    imgEl.className = 'cart-item-img';
+    imageContainer.appendChild(imgEl);
+
+    subtotal += item.price;
+  });
+
+  const total = subtotal;
+
+  document.getElementById('subtotal').textContent = `₹${subtotal}`;
+  document.getElementById('totalPrice').textContent = `₹${total}`;
+
+  confirmBoxBtn.disabled = cart.length < 3;
+  minItemsNotice.style.display = cart.length < 3 ? 'block' : 'none';
+  addMoreContainer.style.display = cart.length < 3 ? 'block' : 'none';
+
+  // ✅ Auto-scroll to Add More if less than 3 items
+  if (cart.length < 3) {
+    setTimeout(() => {
+      addMoreContainer.scrollIntoView({ behavior: 'smooth' });
+    }, 500); // slight delay to ensure layout is rendered
+  }
+
+  if (cart.length === 2) {
+    shopMoreBtn.style.display = 'none';
+    requestMoreBtn.style.display = 'none';
+  } else if (cart.length >= 5) {
+    shopMoreBtn.style.display = 'none';
+    requestMoreBtn.style.display = 'inline-block';
+  } else {
+    shopMoreBtn.style.display = 'inline-block';
+    requestMoreBtn.style.display = 'none';
+  }
+
+  checkoutBtn.style.display = 'none';
+}
+
+  function removeItem(index) {
+    if (boxConfirmed) return;
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartDisplay();
+  }
+
+  async function confirmBox() {
+    try {
+      const sharedId = localStorage.getItem('sharedOrderId');
+      const indiaTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+      const cartData = {
+        id: sharedId,
+        items: cart.map(item => ({
+          name: item.name || 'Unnamed Product',
+          price: item.price,
+          image: item.image || '',
+          category: item.category || 'uncategorized',
+          quantity: item.quantity || 1
+        })),
+        subtotal: document.getElementById('subtotal').textContent,
+        total: document.getElementById('totalPrice').textContent,
+        timestamp: indiaTime
+      };
+
+      const response = await fetch('http://localhost:8000/save-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cartData)
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || 'Failed to save cart');
+
+      alert('✅ Your box has been confirmed! Cart ID: ' + result.cart_id);
+
+      boxConfirmed = true;
+
+      // ✅ Hide all action buttons except checkout
+      confirmBoxBtn.style.display = 'none';
+      shopMoreBtn.style.display = 'none';
+      requestMoreBtn.style.display = 'none';
+      addMoreContainer.style.display = 'none';
+      minItemsNotice.style.display = 'none';
+      checkoutBtn.style.display = 'block';
+
+      // ✅ Disable all other buttons except checkout
+      document.querySelectorAll('button').forEach(btn => {
+        if (btn !== checkoutBtn) btn.disabled = true;
+      });
+
+    } catch (error) {
+      alert('❌ Error confirming your box: ' + error.message);
+      console.error('Save-cart error:', error);
+    }
+  }
+
+  // Function to open WhatsApp with pre-filled message
+  function openWhatsApp() {
+    const phoneNumber = "918185843878"; // Replace with your WhatsApp business number
+    const message = "Hi PisaKart team, I'd like to request more products for my pack.";
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  // Event listeners
+  confirmBoxBtn.addEventListener('click', confirmBox);
+  // checkoutBtn.addEventListener('click', () => {
+  //   cart = [];
+  //   localStorage.setItem('cart', JSON.stringify(cart));
+  //   window.location.href = 'payment.html';
+  // });
+  checkoutBtn.addEventListener('click', () => {
+  // Store cart data in localStorage before redirecting
+  const cartData = {
+    items: cart,
+    subtotal: document.getElementById('subtotal').textContent,
+    total: document.getElementById('totalPrice').textContent.replace('₹', '')
+  };
+  localStorage.setItem('cartData', JSON.stringify(cartData));
+  
+  cart = [];
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.location.href = 'payment.html';
+});
+  addMoreBtn.addEventListener('click', () => {
+    if (!boxConfirmed) window.location.href = 'index.html#emptyBoxes';
+  });
+  pickNowBtn.addEventListener('click', () => {
+    if (!boxConfirmed) window.location.href = 'index.html#emptyBoxes';
+  });
+  requestMoreBtn.addEventListener('click', openWhatsApp);
+
+  document.addEventListener('DOMContentLoaded', updateCartDisplay);
+</script>
+
+</body>
+</html>

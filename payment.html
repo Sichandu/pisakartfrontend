@@ -1,0 +1,939 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment | Pisa Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --primary-light: #f0f7f0;
+      --secondary-color: #1b5e20;
+      --text-color: #333;
+      --text-light: #666;
+      --border-color: #eaeaea;
+      --background-color: #f9f9f9;
+      --white: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+      --disabled-color: #f5f5f5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .header {
+      background: var(--primary-light);
+      padding: 30px;
+      text-align: center;
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .content { padding: 30px; }
+    .footer {
+      text-align: center;
+      padding: 25px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      background: var(--background-color);
+      border-top: 1px solid var(--border-color);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    h3 { font-size: 1.1rem; margin-bottom: 5px; }
+    p { color: var(--text-light); }
+    .header p { font-size: 1.1rem; }
+    .payment-options { margin-bottom: 30px; }
+    .option-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .option-card.disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .option-card.disabled:hover { border-color: var(--border-color); }
+    .option-card:hover { border-color: var(--primary-color); }
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    .radio-btn {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      margin-right: 20px;
+      position: relative;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .radio-btn::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .option-card.selected .radio-btn { border-color: var(--primary-color); }
+    .option-card.selected .radio-btn::after { opacity: 1; }
+    .option-details { flex: 1; min-width: 0; }
+    .payment-icons {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      flex-shrink: 0;
+    }
+    .payment-icon {
+      width: 40px;
+      height: 25px;
+      background: var(--border-color);
+      margin-left: 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0.6;
+      pointer-events: none;
+      margin-top: 20px;
+    }
+    .action-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .action-btn:hover { background: var(--secondary-color); }
+    .secure-note {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .trust-message {
+      display: flex;
+      align-items: center;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      margin-top: 20px;
+      border-left: 4px solid var(--primary-color);
+    }
+    .trust-icon {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin-right: 15px;
+    }
+    .trust-text {
+      font-size: 0.95rem;
+    }
+    .trust-text strong {
+      color: var(--primary-color);
+    }
+    .total-amount {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-top: 5px;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 600px) {
+      .container { margin: 20px auto; }
+      .header { padding: 20px 15px; }
+      .content { padding: 25px 20px; }
+      .header h1 { font-size: 1.8rem; }
+      .option-card { flex-direction: column; align-items: flex-start; }
+      .radio-btn { margin-bottom: 15px; }
+      .payment-icons {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .trust-message {
+        flex-direction: column;
+        text-align: center;
+      }
+      .trust-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Complete Your Purchase</h1>
+      <p>Secure payment options</p>
+    </div>
+    <div class="content">
+      <div class="payment-options">
+        <h2>Select Payment Method</h2>
+        
+        <div class="option-card" id="prepaidOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Prepaid Payment</h3>
+            <p>Pay now and get your order delivered faster</p>
+            <div class="total-amount" id="prepaidTotal">Total: ₹0</div>
+          </div>
+          <div class="payment-icons">
+            <div class="payment-icon">VISA</div>
+            <div class="payment-icon">MC</div>
+            <div class="payment-icon">UPI</div>
+          </div>
+        </div>
+        
+        <div class="option-card" id="codOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Cash on Delivery</h3>
+            <p>Pay when your order arrives</p>
+          </div>
+        </div>
+        
+        <div class="trust-message">
+          <div class="trust-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <div class="trust-text">
+            <strong>We are real, we earn trust first.</strong> Pay when you receive your order and are completely satisfied.
+          </div>
+        </div>
+      </div>
+      
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Processing payment...</p>
+      </div>
+      
+      <button class="action-btn" id="finishBtn">Select a Payment Method</button>
+      
+      <div class="secure-note">
+        <i class="fas fa-lock"></i> Your transaction details are secure
+      </div>
+    </div>
+    <div class="footer">© 2025 Pisa.com | All Rights Reserved</div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const prepaidOption = document.getElementById('prepaidOption');
+  const codOption = document.getElementById('codOption');
+  const finishBtn = document.getElementById('finishBtn');
+  const prepaidTotal = document.getElementById('prepaidTotal');
+  const loadingElement = document.getElementById('loading');
+  
+  let selectedPaymentMethod = null; // No default selection
+  let totalAmount = 0;
+
+  // Get the total amount from localStorage (set in price.html)
+  try {
+    const cartData = JSON.parse(localStorage.getItem('cartData') || '{}');
+    totalAmount = cartData.total || 0;
+    prepaidTotal.textContent = `Total: ₹${totalAmount}`;
+  } catch (error) {
+    console.error('Error retrieving cart data:', error);
+  }
+
+  // Handle payment method selection
+  prepaidOption.addEventListener('click', () => {
+    selectedPaymentMethod = 'prepaid';
+    prepaidOption.classList.add('selected');
+    codOption.classList.remove('selected');
+    finishBtn.textContent = 'Pay Now with Prepaid';
+    finishBtn.classList.add('active');
+  });
+
+  codOption.addEventListener('click', () => {
+    selectedPaymentMethod = 'cod';
+    codOption.classList.add('selected');
+    prepaidOption.classList.remove('selected');
+    finishBtn.textContent = 'Complete Order with COD';
+    finishBtn.classList.add('active');
+  });
+
+  // Handle order completion
+  finishBtn.addEventListener('click', async () => {
+    if (!selectedPaymentMethod) return;
+    
+    try {
+      if (selectedPaymentMethod === 'prepaid') {
+        // Show loading state
+        loadingElement.style.display = 'block';
+        finishBtn.disabled = true;
+        
+        // Create Razorpay order
+        const response = await fetch('http://localhost:8000/create-razorpay-order', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ 
+            amount: totalAmount * 100, // Convert to paise
+            currency: 'INR'
+          })
+        });
+        
+        if (!response.ok) throw new Error('Failed to create payment order');
+        
+        const orderData = await response.json();
+        
+        // Initialize Razorpay checkout
+        const options = {
+          key: orderData.key_id, // Your Razorpay Key ID
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: 'Pisa Pack',
+          description: 'Order Payment',
+          order_id: orderData.id,
+          handler: async function(response) {
+            // Verify payment on server
+            const verificationResponse = await fetch('http://localhost:8000/verify-payment', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            
+            if (verificationResponse.ok) {
+              // Save payment method after successful verification
+              await savePaymentMethod('prepaid');
+              window.location.href = 'thankyou.html';
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          },
+          prefill: {
+            name: 'Customer Name', // You can get this from user data
+            email: 'customer@example.com', // You can get this from user data
+            contact: '9000000000' // You can get this from user data
+          },
+          theme: {
+            color: '#2e7d32'
+          }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+        // Hide loading when payment dialog opens
+        loadingElement.style.display = 'none';
+        
+        rzp.on('payment.failed', function(response) {
+          alert('Payment failed. Please try again.');
+          finishBtn.disabled = false;
+          loadingElement.style.display = 'none';
+        });
+        
+      } else {
+        // For COD, simply save the payment method
+        await savePaymentMethod('cod');
+        window.location.href = 'thankyou.html';
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+      loadingElement.style.display = 'none';
+      finishBtn.disabled = false;
+    }
+  });
+
+  // // Function to save payment method
+  // async function savePaymentMethod(method) {
+  //   // Store payment data in localStorage for the order tracking page
+  //   const paymentData = {
+  //     payment_method: method,
+  //     amount: totalAmount,
+  //     timestamp: new Date().toISOString()
+  //   };
+    
+  //   // Save to localStorage
+  //   localStorage.setItem('paymentData', JSON.stringify(paymentData));
+    
+  //   // Also send to server
+  //   const response = await fetch('http://localhost:8000/api/payment-method', {
+  //     method: 'POST',
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: JSON.stringify({ 
+  //       payment_method: method,
+  //       amount: totalAmount
+  //     })
+  //   });
+    
+  //   if (!response.ok) throw new Error('Failed to save payment method');
+  //   return response.json();
+  // }
+  // Function to save payment method
+async function savePaymentMethod(method) {
+  // Get the current cart ID (you need to implement this)
+  const cartId = await getCurrentCartId(); // You'll need to implement this function
+  
+  // Store payment data in localStorage for the order tracking page
+  const paymentData = {
+    payment_method: method,
+    amount: totalAmount,
+    timestamp: new Date().toISOString(),
+    cart_id: cartId // Associate with the specific cart
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('paymentData', JSON.stringify(paymentData));
+  
+  // Also send to server with cart association
+  const response = await fetch('http://localhost:8000/api/payment-method', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ 
+      payment_method: method,
+      amount: totalAmount,
+      cart_id: cartId // Include cart ID
+    })
+  });
+  
+  if (!response.ok) throw new Error('Failed to save payment method');
+  return response.json();
+}
+});
+</script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment | Pisa Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --primary-light: #f0f7f0;
+      --secondary-color: #1b5e20;
+      --text-color: #333;
+      --text-light: #666;
+      --border-color: #eaeaea;
+      --background-color: #f9f9f9;
+      --white: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+      --disabled-color: #f5f5f5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .header {
+      background: var(--primary-light);
+      padding: 30px;
+      text-align: center;
+      border-bottom: 3px solid var(--primary-color);
+    }
+    .content { padding: 30px; }
+    .footer {
+      text-align: center;
+      padding: 25px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      background: var(--background-color);
+      border-top: 1px solid var(--border-color);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+    h3 { font-size: 1.1rem; margin-bottom: 5px; }
+    p { color: var(--text-light); }
+    .header p { font-size: 1.1rem; }
+    .payment-options { margin-bottom: 30px; }
+    .option-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+    .option-card.disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .option-card.disabled:hover { border-color: var(--border-color); }
+    .option-card:hover { border-color: var(--primary-color); }
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    .radio-btn {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      margin-right: 20px;
+      position: relative;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .radio-btn::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .option-card.selected .radio-btn { border-color: var(--primary-color); }
+    .option-card.selected .radio-btn::after { opacity: 1; }
+    .option-details { flex: 1; min-width: 0; }
+    .payment-icons {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+      flex-shrink: 0;
+    }
+    .payment-icon {
+      width: 40px;
+      height: 25px;
+      background: var(--border-color);
+      margin-left: 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0.6;
+      pointer-events: none;
+      margin-top: 20px;
+    }
+    .action-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .action-btn:hover { background: var(--secondary-color); }
+    .secure-note {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .trust-message {
+      display: flex;
+      align-items: center;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      margin-top: 20px;
+      border-left: 4px solid var(--primary-color);
+    }
+    .trust-icon {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin-right: 15px;
+    }
+    .trust-text {
+      font-size: 0.95rem;
+    }
+    .trust-text strong {
+      color: var(--primary-color);
+    }
+    .total-amount {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-top: 5px;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 600px) {
+      .container { margin: 20px auto; }
+      .header { padding: 20px 15px; }
+      .content { padding: 25px 20px; }
+      .header h1 { font-size: 1.8rem; }
+      .option-card { flex-direction: column; align-items: flex-start; }
+      .radio-btn { margin-bottom: 15px; }
+      .payment-icons {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .trust-message {
+        flex-direction: column;
+        text-align: center;
+      }
+      .trust-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Complete Your Purchase</h1>
+      <p>Secure payment options</p>
+    </div>
+    <div class="content">
+      <div class="payment-options">
+        <h2>Select Payment Method</h2>
+        
+        <div class="option-card" id="prepaidOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Prepaid Payment</h3>
+            <p>Pay now and get your order delivered faster</p>
+            <div class="total-amount" id="prepaidTotal">Total: ₹0</div>
+          </div>
+          <div class="payment-icons">
+            <div class="payment-icon">VISA</div>
+            <div class="payment-icon">MC</div>
+            <div class="payment-icon">UPI</div>
+          </div>
+        </div>
+        
+        <div class="option-card" id="codOption">
+          <div class="radio-btn"></div>
+          <div class="option-details">
+            <h3>Cash on Delivery</h3>
+            <p>Pay when your order arrives</p>
+          </div>
+        </div>
+        
+        <div class="trust-message">
+          <div class="trust-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <div class="trust-text">
+            <strong>We are real, we earn trust first.</strong> Pay when you receive your order and are completely satisfied.
+          </div>
+        </div>
+      </div>
+      
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Processing payment...</p>
+      </div>
+      
+      <button class="action-btn" id="finishBtn">Select a Payment Method</button>
+      
+      <div class="secure-note">
+        <i class="fas fa-lock"></i> Your transaction details are secure
+      </div>
+    </div>
+    <div class="footer">© 2025 Pisa.com | All Rights Reserved</div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const prepaidOption = document.getElementById('prepaidOption');
+  const codOption = document.getElementById('codOption');
+  const finishBtn = document.getElementById('finishBtn');
+  const prepaidTotal = document.getElementById('prepaidTotal');
+  const loadingElement = document.getElementById('loading');
+  
+  let selectedPaymentMethod = null; // No default selection
+  let totalAmount = 0;
+  let currentCartId = null;
+
+  // Get the total amount from localStorage (set in price.html)
+  try {
+    const cartData = JSON.parse(localStorage.getItem('cartData') || '{}');
+    totalAmount = cartData.total || 0;
+    prepaidTotal.textContent = `Total: ₹${totalAmount}`;
+    
+    // Try to get the current cart ID from localStorage or generate a new one
+    currentCartId = cartData.cartId || generateCartId();
+  } catch (error) {
+    console.error('Error retrieving cart data:', error);
+    currentCartId = generateCartId();
+  }
+
+  // Generate a simple cart ID if not available
+  function generateCartId() {
+    return 'cart_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  }
+
+  // Handle payment method selection
+  prepaidOption.addEventListener('click', () => {
+    selectedPaymentMethod = 'prepaid';
+    prepaidOption.classList.add('selected');
+    codOption.classList.remove('selected');
+    finishBtn.textContent = 'Pay Now with Prepaid';
+    finishBtn.classList.add('active');
+  });
+
+  codOption.addEventListener('click', () => {
+    selectedPaymentMethod = 'cod';
+    codOption.classList.add('selected');
+    prepaidOption.classList.remove('selected');
+    finishBtn.textContent = 'Complete Order with COD';
+    finishBtn.classList.add('active');
+  });
+
+  // Handle order completion
+  finishBtn.addEventListener('click', async () => {
+    if (!selectedPaymentMethod) return;
+    
+    try {
+      if (selectedPaymentMethod === 'prepaid') {
+        // Show loading state
+        loadingElement.style.display = 'block';
+        finishBtn.disabled = true;
+        
+        // Create Razorpay order
+        const response = await fetch('http://127.0.0.1:8000/create-razorpay-order', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ 
+            amount: totalAmount * 100, // Convert to paise
+            currency: 'INR'
+          })
+        });
+        
+        if (!response.ok) throw new Error('Failed to create payment order');
+        
+        const orderData = await response.json();
+        
+        // Initialize Razorpay checkout
+        const options = {
+          key: orderData.key_id, // Your Razorpay Key ID
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: 'Pisa Pack',
+          description: 'Order Payment',
+          order_id: orderData.id,
+          handler: async function(response) {
+            // Verify payment on server
+            const verificationResponse = await fetch('http://127.0.0.1:8000/verify-payment', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+            
+            if (verificationResponse.ok) {
+              // Save payment method after successful verification
+              await savePaymentMethod('prepaid');
+              window.location.href = 'thankyou.html';
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          },
+          prefill: {
+            name: 'Customer Name', // You can get this from user data
+            email: 'customer@example.com', // You can get this from user data
+            contact: '9000000000' // You can get this from user data
+          },
+          theme: {
+            color: '#2e7d32'
+          }
+        };
+        
+        const rzp = new Razorpay(options);
+        rzp.open();
+        
+        // Hide loading when payment dialog opens
+        loadingElement.style.display = 'none';
+        
+        rzp.on('payment.failed', function(response) {
+          alert('Payment failed. Please try again.');
+          finishBtn.disabled = false;
+          loadingElement.style.display = 'none';
+        });
+        
+      } else {
+        // For COD, simply save the payment method
+        loadingElement.style.display = 'block';
+        finishBtn.disabled = true;
+        
+        try {
+          await savePaymentMethod('cod');
+          window.location.href = 'thankyou.html';
+        } catch (error) {
+          alert('Error: ' + error.message);
+          loadingElement.style.display = 'none';
+          finishBtn.disabled = false;
+        }
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+      loadingElement.style.display = 'none';
+      finishBtn.disabled = false;
+    }
+  });
+
+  // Function to save payment method
+  async function savePaymentMethod(method) {
+    // Store payment data in localStorage for the order tracking page
+    const paymentData = {
+      payment_method: method,
+      amount: totalAmount,
+      timestamp: new Date().toISOString(),
+      cart_id: currentCartId
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('paymentData', JSON.stringify(paymentData));
+    
+    // Also send to server
+    const response = await fetch('http://127.0.0.1:8000/api/payment-method', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ 
+        payment_method: method,
+        amount: totalAmount,
+        cart_id: currentCartId
+      })
+    });
+    
+    if (!response.ok) throw new Error('Failed to save payment method');
+    return response.json();
+  }
+});
+</script>
+</body>
+</html>

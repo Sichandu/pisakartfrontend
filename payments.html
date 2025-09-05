@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure payment options at PisaKart - UPI, Cards, Net Banking, COD, and EMI. 100% safe transactions with SSL encryption.">
+  <title>Payment Methods | PisaKart Secure Checkout</title>
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #4caf50;
+      --text-color: #333;
+      --light-bg: #f9f9f9;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--light-bg);
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .payment-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s ease;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .payment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    
+    .payment-card h2 {
+      color: var(--primary-color);
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .payment-icon {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+    }
+    
+    .coming-soon {
+      display: inline-block;
+      background-color: #ffeb3b;
+      color: #333;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+      font-weight: bold;
+    }
+    
+    .security-badge {
+      background-color: #e8f5e9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 2rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .security-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+    }
+    
+    .security-text h2 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary-color);
+    }
+    
+    .faq {
+      margin: 3rem 0;
+    }
+    
+    .faq h2 {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+    
+    .faq-item {
+      margin-bottom: 1.5rem;
+    }
+    
+    .faq-question {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .security-badge {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Secure Payment Options</h1>
+      <p>Choose your preferred way to pay</p>
+    </div>
+  </header>
+  
+  <main class="container">
+    <div class="payment-methods">
+      <div class="payment-card">
+        <h2><i class="fas fa-mobile-alt payment-icon"></i> UPI Payment</h2>
+        <p>Instant payments via:</p>
+        <ul>
+          <li>Google Pay</li>
+          <li>PhonePe</li>
+          <li>Paytm</li>
+          <li>BHIM UPI</li>
+        </ul>
+      </div>
+      
+      <div class="payment-card">
+        <h2><i class="far fa-credit-card payment-icon"></i> Cards</h2>
+        <p>All major cards accepted:</p>
+        <ul>
+          <li>Visa</li>
+          <li>Mastercard</li>
+          <li>Rupay</li>
+          <li>American Express</li>
+        </ul>
+      </div>
+      
+      <div class="payment-card">
+        <h2><i class="fas fa-university payment-icon"></i> Net Banking</h2>
+        <p>Direct bank transfers from:</p>
+        <ul>
+          <li>SBI</li>
+          <li>HDFC</li>
+          <li>ICICI</li>
+          <li>All major Indian banks</li>
+        </ul>
+      </div>
+      
+      <div class="payment-card">
+        <h2><i class="fas fa-money-bill-wave payment-icon"></i> Cash on Delivery</h2>
+        <p>Pay when you receive:</p>
+        <ul>
+          <li>Available for most products</li>
+          <li>₹50 COD charge on orders below ₹499</li>
+          <li>Free COD on orders above ₹499</li>
+        </ul>
+      </div>
+      
+      <div class="payment-card">
+        <h2><i class="fas fa-calendar-alt payment-icon"></i> EMI Options <span class="coming-soon">Coming Soon</span></h2>
+        <p>Easy installment plans:</p>
+        <ul>
+          <li>No-cost EMI</li>
+          <li>3-12 month options</li>
+          <li>All major banks</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="security-badge">
+      <i class="fas fa-shield-alt security-icon"></i>
+      <div class="security-text">
+        <h2>100% Secure Payments</h2>
+        <p>All transactions are protected with 256-bit SSL encryption. We don't store your card details on our servers.</p>
+      </div>
+    </div>
+    
+    <div class="faq">
+      <h2>Payment FAQs</h2>
+      
+      <div class="faq-item">
+        <div class="faq-question">Is it safe to pay on PisaKart?</div>
+        <p>Yes! We use industry-standard encryption and security protocols to protect all transactions. Your payment information is processed through secure payment gateways.</p>
+      </div>
+      
+      <div class="faq-item">
+        <div class="faq-question">When will I get my refund?</div>
+        <p>Refunds are processed within 3-7 business days after return approval. The time to reflect in your account depends on your bank.</p>
+      </div>
+      
+      <div class="faq-item">
+        <div class="faq-question">Can I change my payment method after ordering?</div>
+        <p>Payment methods can only be changed before your order is processed. Contact our support team immediately if you need to make changes.</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PISA Address</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary-color: #2e7d32;
+    --primary-dark: #1b5e20;
+    --primary-light: #e8f5e9;
+    --secondary-color: #ff9800;
+    --error-color: #d32f2f;
+    --text-color: #333;
+    --light-text: #666;
+    --border-color: #ddd;
+    --background-color: #f5f5f5;
+    --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin: 20px 0;
+    font-weight: 600;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+  }
+  
+  .btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 15px;
+  }
+  
+  .btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-light);
+  }
+  
+  .btn-secondary {
+    background-color: var(--secondary-color);
+  }
+  
+  .btn-secondary:hover {
+    background-color: #e65100;
+  }
+  
+  form {
+    max-width: 500px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.4s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 5px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    transition: var(--transition);
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+  }
+  
+  .message {
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: 500;
+  }
+  
+  .success {
+    background-color: #e8f5e9;
+    color: var(--primary-dark);
+    border: 1px solid #c8e6c9;
+  }
+  
+  .error {
+    background-color: #ffebee;
+    color: var(--error-color);
+    border: 1px solid #ffcdd2;
+  }
+  
+  #mobileInput {
+    max-width: 500px;
+    margin: 25px auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    animation: fadeIn 0.4s ease;
+  }
+  
+  #mobileInput input {
+    flex: 1;
+    padding: 12px 15px;
+  }
+  
+  #addressesContainer {
+    max-width: 600px;
+    margin: 20px auto;
+  }
+  
+  .address-card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    box-shadow: var(--card-shadow);
+  }
+  
+  .address-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+  }
+  
+  .address-card.selected {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-light);
+  }
+  
+  .address-card p {
+    margin: 5px 0;
+  }
+  
+  .address-card .name {
+    font-weight: 600;
+    color: var(--primary-dark);
+  }
+  
+  .action-buttons {
+    display: none;
+    margin-top: 15px;
+    gap: 10px;
+  }
+  
+  .action-buttons button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .price-summary {
+    margin-top: 20px;
+    border-top: 2px solid var(--border-color);
+    padding-top: 15px;
+  }
+  
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+  
+  .total {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+  }
+  
+  .empty-cart {
+    text-align: center;
+    color: var(--light-text);
+    padding: 25px;
+    font-size: 1.1rem;
+  }
+  
+  .loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px auto;
+    max-width: 600px;
+    position: relative;
+  }
+  
+  .progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 1;
+  }
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+  }
+  
+  .step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--light-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .step.active .step-number {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .step.completed .step-number {
+    background: var(--primary-dark);
+    color: white;
+  }
+  
+  .step-text {
+    font-size: 14px;
+    color: var(--light-text);
+    font-weight: 500;
+  }
+  
+  .step.active .step-text {
+    color: var(--primary-color);
+  }
+  
+  .step.completed .step-text {
+    color: var(--text-color);
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s ease;
+  }
+  
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .modal h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }
+  
+  .modal p {
+    margin: 15px 0;
+    line-height: 1.5;
+  }
+  
+  .pisacode-display {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-dark);
+    background-color: var(--primary-light);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    letter-spacing: 2px;
+  }
+  
+  .modal-btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      padding: 15px;
+      margin: 10px;
+    }
+    
+    .btn-group {
+      flex-direction: column;
+    }
+    
+    #mobileInput {
+      flex-direction: column;
+    }
+    
+    form {
+      padding: 15px;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+    
+    .modal-content {
+      padding: 20px;
+    }
+    
+    .pisacode-display {
+      font-size: 22px;
+      padding: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- PISACODE Modal -->
+<div id="pisacodeModal" class="modal">
+  <div class="modal-content">
+    <h2><i class="fas fa-key"></i> Your PISACODE</h2>
+    <p>This is your PISACODE, please remember it</p>
+    <div id="pisacodeDisplay" class="pisacode-display">PISA1234</div>
+    <p style="font-size: 14px; color: var(--light-text);">(Like a UPI PIN for your address)</p>
+    <button class="btn modal-btn" onclick="closePisacodeModal()">OK</button>
+  </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="progress-steps">
+  <div class="step completed">
+    <div class="step-number"><i class="fas fa-check"></i></div>
+    <div class="step-text">Cart</div>
+  </div>
+  <div class="step active">
+    <div class="step-number">2</div>
+    <div class="step-text">Address</div>
+  </div>
+  <div class="step">
+    <div class="step-number">3</div>
+    <div class="step-text">Payment</div>
+  </div>
+</div>
+
+<div class="container">
+  <h1>Your Order Summary</h1>
+  <div id="cartItems"></div>
+  <div class="price-summary" id="summary" style="display:none">
+    <div class="summary-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+    <div class="summary-row"><span>Shipping</span><span>FREE</span></div>
+    <div class="summary-row total"><span>Total</span><span id="total">₹0</span></div>
+  </div>
+  <div class="empty-cart" id="emptyCart" style="display:none">Your cart is empty.</div>
+</div>
+
+<h1>Shipping Address</h1>
+
+<div class="btn-group">
+  <button id="newUserBtn" class="btn">
+    <i class="fas fa-user-plus"></i> New User
+  </button>
+  <button id="regularUserBtn" class="btn btn-outline">
+    <i class="fas fa-user-check"></i> Regular User
+  </button>
+</div>
+
+<p id="tapMessage" style="text-align:center; font-weight:500; color:#1b5e20; margin-bottom:10px; display:none;">
+  📍 Tap on your address below to continue
+</p>
+
+<form id="addressForm" style="display:none;">
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Enter your full name" required>
+  </div>
+  <div class="form-group">
+    <label for="phonenumber">Phone Number</label>
+    <input type="tel" id="phonenumber" placeholder="Enter your phone number" required>
+  </div>
+  <div class="form-group">
+    <label for="street">Street Address</label>
+    <input type="text" id="street" placeholder="House no., Building, Street" required>
+  </div>
+  <div class="form-group">
+    <label for="village">Village/Locality</label>
+    <input type="text" id="village" placeholder="Village or Locality" required>
+  </div>
+  <div class="form-group">
+    <label for="pincode">Pincode</label>
+    <input type="text" id="pincode" placeholder="6-digit pincode" required pattern="[0-9]{6}">
+  </div>
+  <div class="form-group">
+    <label for="city">City</label>
+    <input type="text" id="city" placeholder="City" required>
+  </div>
+  <div class="form-group">
+    <label for="state">State</label>
+    <input type="text" id="state" placeholder="State" required>
+  </div>
+  <button type="button" class="btn" onclick="submitNewUser()" id="submitBtn">
+    <span id="submitText">Save Address</span>
+  </button>
+</form>
+
+<div id="userCodeMsg" class="message" style="display:none"></div>
+
+<div id="mobileInput" style="display:none;">
+  <input type="text" id="userCodeInput" placeholder="Enter your PISA code (e.g., PISA1234)">
+  <button class="btn" onclick="fetchAddresses()" id="fetchBtn">
+    <span id="fetchText">Get My Addresses</span>
+  </button>
+</div>
+
+<div id="addressesContainer"></div>
+
+<script>
+// Define base URL for API calls
+const baseURL = "http://127.0.0.1:8000"; // Change this to your actual backend URL
+
+// Get current time in Indian Standard Time (IST)
+function getIndianTime() {
+  const now = new Date();
+  // IST is UTC+5:30
+  const ISTOffset = 330 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+  const ISTTime = new Date(now.getTime() + ISTOffset);
+  return ISTTime;
+}
+
+// Show PISACODE modal
+function showPisacodeModal(pisacode) {
+  document.getElementById('pisacodeDisplay').textContent = pisacode;
+  document.getElementById('pisacodeModal').style.display = 'flex';
+}
+
+// Close PISACODE modal
+function closePisacodeModal() {
+  document.getElementById('pisacodeModal').style.display = 'none';
+  // Redirect after modal is closed
+  window.location.href = "price.html";
+}
+
+// Check if user has a valid PISACODE in local storage (within 7 days)
+function checkStoredPisacode() {
+  const savedCode = localStorage.getItem("pisaCode");
+  const savedTime = localStorage.getItem("pisaCodeTime");
+  
+  if (savedCode && savedTime) {
+    const now = getIndianTime().getTime();
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    
+    // Check if the code is still valid (within 7 days)
+    if (now - savedTime < sevenDaysInMs) {
+      // Auto-fill the code but don't fetch addresses automatically
+      document.getElementById("userCodeInput").value = savedCode;
+      
+      // Show regular user interface
+      mobileInput.style.display = "flex";
+      addressForm.style.display = "none";
+      addressesContainer.innerHTML = "";
+      userCodeMsg.style.display = "none";
+      tapMessage.style.display = "none";
+      newUserBtn.classList.remove("btn");
+      newUserBtn.classList.add("btn-outline");
+      regularUserBtn.classList.remove("btn-outline");
+      regularUserBtn.classList.add("btn");
+      
+      return true;
+    } else {
+      // Remove expired code
+      localStorage.removeItem("pisaCode");
+      localStorage.removeItem("pisaCodeTime");
+      localStorage.removeItem("selectedAddress");
+    }
+  }
+  
+  return false;
+}
+
+// Auto-fill city/state from pincode
+document.getElementById("pincode").addEventListener("blur", function() {
+  const pin = this.value;
+  if (pin.length === 6) {
+    fetch(`https://api.postalpincode.in/pincode/${pin}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data[0].Status === "Success") {
+          const office = data[0].PostOffice[0];
+          document.getElementById("city").value = office.District;
+          document.getElementById("state").value = office.State;
+        } else {
+          alert("Invalid Pincode");
+        }
+      });
+  }
+});
+
+// Cart display logic
+const cart = JSON.parse(localStorage.getItem('cart')) || [];
+const cartItemsContainer = document.getElementById('cartItems');
+const subtotalEl = document.getElementById('subtotal');
+const totalEl = document.getElementById('total');
+const summary = document.getElementById('summary');
+const emptyCart = document.getElementById('emptyCart');
+
+function displayCart() {
+  cartItemsContainer.innerHTML = '';
+  if (cart.length === 0) {
+    emptyCart.style.display = 'block';
+    summary.style.display = 'none';
+  } else {
+    emptyCart.style.display = 'none';
+    let subtotal = 0;
+
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <span>${item.name} × ${item.quantity || 1}</span>
+        <span>₹${item.price * (item.quantity || 1)}</span>
+      `;
+      cartItemsContainer.appendChild(div);
+      subtotal += item.price * (item.quantity || 1);
+    });
+
+    subtotalEl.textContent = `₹${subtotal}`;
+    totalEl.textContent = `₹${subtotal}`;
+    summary.style.display = 'block';
+  }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+  displayCart();
+  
+  // Check for stored PISACODE first
+  checkStoredPisacode();
+});
+
+// Form and button event handlers
+const newUserBtn = document.getElementById("newUserBtn");
+const regularUserBtn = document.getElementById("regularUserBtn");
+const addressForm = document.getElementById("addressForm");
+const mobileInput = document.getElementById("mobileInput");
+const userCodeMsg = document.getElementById("userCodeMsg");
+const addressesContainer = document.getElementById("addressesContainer");
+const submitBtn = document.getElementById("submitBtn");
+const submitText = document.getElementById("submitText");
+const fetchBtn = document.getElementById("fetchBtn");
+const fetchText = document.getElementById("fetchText");
+const tapMessage = document.getElementById("tapMessage");
+
+newUserBtn.addEventListener("click", () => {
+  addressForm.style.display = "flex";
+  mobileInput.style.display = "none";
+  addressesContainer.innerHTML = "";
+  userCodeMsg.style.display = "none";
+  tapMessage.style.display = "none";
+  regularUserBtn.classList.remove("btn");
+  regularUserBtn.classList.add("btn-outline");
+  newUserBtn.classList.remove("btn-outline");
+  newUserBtn.classList.add("btn");
+});
+
+regularUserBtn.addEventListener("click", () => {
+  mobileInput.style.display = "flex";
+  addressForm.style.display = "none";
+  addressesContainer.innerHTML = "";
+  userCodeMsg.style.display = "none";
+  tapMessage.style.display = "none";
+  newUserBtn.classList.remove("btn");
+  newUserBtn.classList.add("btn-outline");
+  regularUserBtn.classList.remove("btn-outline");
+  regularUserBtn.classList.add("btn");
+});
+
+document.getElementById("phonenumber").addEventListener("input", function(e) {
+  this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+});
+
+document.getElementById("pincode").addEventListener("input", function(e) {
+  this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+});
+
+// Form submission handlers
+async function submitNewUser() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phonenumber").value.trim();
+  const street = document.getElementById("street").value.trim();
+  const village = document.getElementById("village").value.trim();
+  const pincode = document.getElementById("pincode").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const state = document.getElementById("state").value.trim();
+
+  if (!name || !phone || !street || !village || !pincode || !city || !state) {
+    showMessage("Please fill all fields", "error");
+    return;
+  }
+
+  if (phone.length !== 10) {
+    showMessage("Please enter a valid 10-digit phone number", "error");
+    return;
+  }
+
+  if (pincode.length !== 6) {
+    showMessage("Please enter a valid 6-digit pincode", "error");
+    return;
+  }
+
+  const data = {
+    name,
+    phonenumber: parseInt(phone),
+    street,
+    village,
+    pincode: parseInt(pincode),
+    city,
+    state,
+    timestamp: getIndianTime().toISOString()
+  };
+
+  submitBtn.disabled = true;
+  submitText.textContent = "Processing...";
+  submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+  try {
+    const res = await fetch(`${baseURL}/create-user`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      // Store the PISACODE with timestamp
+      localStorage.setItem('pisaCode', result.user_code);
+      localStorage.setItem('pisaCodeTime', getIndianTime().getTime());
+      localStorage.setItem('selectedAddress', JSON.stringify(data));
+      
+      // Show the PISACODE in a modal instead of a message
+      showPisacodeModal(result.user_code);
+    } else {
+      showMessage(result.detail || "Error creating user. Please try again.", "error");
+    }
+  } catch (error) {
+    showMessage("Network error. Please try again.", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitText.textContent = "Save Address";
+    submitBtn.querySelector('.loading')?.remove();
+  }
+}
+
+async function fetchAddresses() {
+  const code = document.getElementById("userCodeInput").value.trim();
+
+  if (!code) {
+    showMessage("Please enter your PISA code", "error");
+    return;
+  }
+
+  fetchBtn.disabled = true;
+  fetchText.textContent = "Fetching...";
+  fetchBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+  try {
+    const res = await fetch(`${baseURL}/get-user/${code}`);
+    
+    // Check if response is OK
+    if (!res.ok) {
+      throw new Error(`Server returned ${res.status} ${res.statusText}`);
+    }
+    
+    const result = await res.json();
+
+    if (result && result.addresses) {
+      // Store the PISACODE with timestamp for future visits
+      localStorage.setItem('pisaCode', code);
+      localStorage.setItem('pisaCodeTime', getIndianTime().getTime());
+      
+      displayAddresses(result.addresses, code);
+    } else {
+      showMessage("No addresses found for this code.", "error");
+    }
+  } catch (error) {
+    showMessage("Error fetching addresses. Please check your code and try again.", "error");
+    console.error("Fetch error:", error);
+  } finally {
+    fetchBtn.disabled = false;
+    fetchText.textContent = "Get My Addresses";
+    fetchBtn.querySelector('.loading')?.remove();
+  }
+}
+
+function displayAddresses(addresses, userCode) {
+  tapMessage.style.display = "none";
+  
+  if (!addresses || addresses.length === 0) {
+    addressesContainer.innerHTML = '<div class="message">No addresses found for this code.</div>';
+    return;
+  }
+
+  addressesContainer.innerHTML = addresses.map((addr, index) => `
+    <div class="address-card" onclick="selectAddress(this, '${userCode}', ${index})">
+      <p class="name">${addr.name} • ${addr.phonenumber}</p>
+      <p>${addr.street}, ${addr.village}</p>
+      <p>${addr.city}, ${addr.state} - ${addr.pincode}</p>
+      <div class="action-buttons">
+        <button class="btn" onclick="continueWithThis('${userCode}', ${index}); event.stopPropagation();">
+          <i class="fas fa-check"></i> Use This
+        </button>
+        <button class="btn btn-outline" onclick="showAddNewAddress('${userCode}'); event.stopPropagation();">
+          <i class="fas fa-plus"></i> Add New
+        </button>
+      </div>
+    </div>
+  `).join("");
+  
+  tapMessage.style.display = "block";
+}
+
+function selectAddress(card, userCode, index) {
+  document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.querySelectorAll('.action-buttons').forEach(btn => btn.style.display = 'none');
+  card.querySelector('.action-buttons').style.display = 'flex';
+}
+
+async function continueWithThis(userCode, index) {
+  showMessage("Taking you to your PISA pack...", "success");
+  
+  try {
+    const res = await fetch(`${baseURL}/get-user/${userCode}`);
+    const result = await res.json();
+
+    if (result.addresses && result.addresses[index]) {
+      localStorage.setItem('selectedAddress', JSON.stringify(result.addresses[index]));
+      
+      // Track address selection
+      await fetch(`${baseURL}/api/record-address`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...result.addresses[index],
+          userCode: userCode,
+          type: "selected",
+          timestamp: getIndianTime().toISOString()
+        })
+      });
+      
+      setTimeout(() => window.location.href = "price.html", 1500);
+    }
+  } catch (error) {
+    showMessage("Error selecting address. Please try again.", "error");
+  }
+}
+
+function showAddNewAddress(userCode) {
+  addressForm.style.display = "flex";
+  mobileInput.style.display = "none";
+  addressesContainer.innerHTML = "";
+  tapMessage.style.display = "none";
+
+  document.getElementById("name").value = "";
+  document.getElementById("phonenumber").value = "";
+  document.getElementById("street").value = "";
+  document.getElementById("village").value = "";
+  document.getElementById("pincode").value = "";
+  document.getElementById("city").value = "";
+  document.getElementById("state").value = "";
+
+  submitBtn.onclick = async () => {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phonenumber").value.trim();
+    const street = document.getElementById("street").value.trim();
+    const village = document.getElementById("village").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim();
+
+    if (!name || !phone || !street || !village || !pincode || !city || !state) {
+      showMessage("Please fill all fields", "error");
+      return;
+    }
+
+    if (phone.length !== 10) {
+      showMessage("Please enter a valid 10-digit phone number", "error");
+      return;
+    }
+
+    if (pincode.length !== 6) {
+      showMessage("Please enter a valid 6-digit pincode", "error");
+      return;
+    }
+
+    const data = {
+      name,
+      phonenumber: parseInt(phone),
+      street,
+      village,
+      pincode: parseInt(pincode),
+      city,
+      state,
+      timestamp: getIndianTime().toISOString()
+    };
+
+    submitBtn.disabled = true;
+    submitText.textContent = "Adding...";
+    submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+    try {
+      const res = await fetch(`${baseURL}/add-address/${userCode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        showMessage("New address added successfully!", "success");
+        setTimeout(() => window.location.href = "price.html", 1500);  
+        setTimeout(() => {
+          addressForm.style.display = "none";
+          fetchAddresses();
+        }, 1500);
+      } else {
+        showMessage(result.detail || "Error adding address", "error");
+      }
+    } catch (error) {
+      showMessage("Network error. Please try again.", "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = "Save Address";
+      submitBtn.querySelector('.loading')?.remove();
+    }
+  };
+}
+
+function showMessage(text, type) {
+  userCodeMsg.textContent = text;
+  userCodeMsg.className = `message ${type}`;
+  userCodeMsg.style.display = "block";
+  setTimeout(() => { userCodeMsg.style.display = "none"; }, 5000);
+}
+
+userCodeMsg.addEventListener("click", () => {
+  userCodeMsg.style.display = "none";
+});
+</script>
+</body>
+</html>
