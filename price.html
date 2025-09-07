@@ -490,7 +490,7 @@
         timestamp: indiaTime
       };
 
-      const response = await fetch('http://localhost:8000/save-cart', {
+      const response = await fetch('${baseURL}/save-cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cartData)
