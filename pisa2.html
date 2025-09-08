@@ -694,6 +694,87 @@ document.getElementById("pincode").addEventListener("input", function(e) {
 });
 
 // Form submission handlers
+// async function submitNewUser() {
+//   const name = document.getElementById("name").value.trim();
+//   const phone = document.getElementById("phonenumber").value.trim();
+//   const street = document.getElementById("street").value.trim();
+//   const village = document.getElementById("village").value.trim();
+//   const pincode = document.getElementById("pincode").value.trim();
+//   const city = document.getElementById("city").value.trim();
+//   const state = document.getElementById("state").value.trim();
+
+//   if (!name || !phone || !street || !village || !pincode || !city || !state) {
+//     showMessage("Please fill all fields", "error");
+//     return;
+//   }
+
+//   if (phone.length !== 10) {
+//     showMessage("Please enter a valid 10-digit phone number", "error");
+//     return;
+//   }
+
+//   if (pincode.length !== 6) {
+//     showMessage("Please enter a valid 6-digit pincode", "error");
+//     return;
+//   }
+
+//   const data = {
+//     name,
+//     phonenumber: parseInt(phone),
+//     street,
+//     village,
+//     pincode: parseInt(pincode),
+//     city,
+//     state,
+//     timestamp: getIndianTime().toISOString()
+//   };
+
+//   submitBtn.disabled = true;
+//   submitText.textContent = "Processing...";
+//   submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
+
+//   try {
+//     const res = await fetch(`${baseURL}/create-user`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(data)
+//     });
+
+//     const result = await res.json();
+
+//     if (res.ok) {
+//       // Store the PISACODE with timestamp
+//       localStorage.setItem('pisaCode', result.user_code);
+//       localStorage.setItem('pisaCodeTime', getIndianTime().getTime());
+//       localStorage.setItem('selectedAddress', JSON.stringify(data));
+      
+//       // Show the PISACODE in a modal instead of a message
+//       showPisacodeModal(result.user_code);
+//     } else {
+//       showMessage(result.detail || "Error creating user. Please try again.", "error");
+//     }
+//   } catch (error) {
+//     showMessage("Network error. Please try again.", "error");
+//   } finally {
+//     submitBtn.disabled = false;
+//     submitText.textContent = "Save Address";
+//     submitBtn.querySelector('.loading')?.remove();
+//   }
+// }
+
+// Add this function to check if phone number exists
+async function checkPhoneNumber(phone) {
+  try {
+    const res = await fetch(`${baseURL}/check-phone/${phone}`);
+    const result = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error checking phone number:", error);
+    return { exists: false };
+  }
+}
+
+// Update the submitNewUser function
 async function submitNewUser() {
   const name = document.getElementById("name").value.trim();
   const phone = document.getElementById("phonenumber").value.trim();
@@ -718,6 +799,20 @@ async function submitNewUser() {
     return;
   }
 
+  // Check if phone number already exists
+  submitBtn.disabled = true;
+  submitText.textContent = "Checking...";
+  
+  const checkResult = await checkPhoneNumber(phone);
+  
+  if (checkResult.exists) {
+    showMessage(`This phone number is already registered. Your PISA code is: ${checkResult.user_code}. Please use the Regular User button.`, "error");
+    submitBtn.disabled = false;
+    submitText.textContent = "Save Address";
+    return;
+  }
+
+  // Continue with user creation if phone doesn't exist
   const data = {
     name,
     phonenumber: parseInt(phone),
@@ -729,7 +824,6 @@ async function submitNewUser() {
     timestamp: getIndianTime().toISOString()
   };
 
-  submitBtn.disabled = true;
   submitText.textContent = "Processing...";
   submitBtn.insertAdjacentHTML("beforeend", '<span class="loading"></span>');
 
@@ -748,7 +842,7 @@ async function submitNewUser() {
       localStorage.setItem('pisaCodeTime', getIndianTime().getTime());
       localStorage.setItem('selectedAddress', JSON.stringify(data));
       
-      // Show the PISACODE in a modal instead of a message
+      // Show the PISACODE in a modal
       showPisacodeModal(result.user_code);
     } else {
       showMessage(result.detail || "Error creating user. Please try again.", "error");
